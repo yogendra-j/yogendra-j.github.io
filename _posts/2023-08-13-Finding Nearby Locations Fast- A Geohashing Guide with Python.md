@@ -15,7 +15,7 @@ The efficient way to find all items near a given location(lat, long).
 - There is no way to avoid linear search. 
 - Indexing or sorting doesn't work for proximity searches. Unlike a simple list where items can be ranked, distances vary depending on location. For example, sorting restaurants by x-coordinates doesn't consider their y-coordinates. Since distance involves both, standard indexing or sorting methods, which rely on unidirectional ranking, are ineffective for this multidimensional problem 
 
-### Simple implementation ([Github](https://github.com/yogendra-j/small-experiments/blob/master/proximirt-service.ipynb)) 
+### Simple implementation ([Github](https://github.com/yogendra-j/geohash-impl/small-experiments/blob/master/proximirt-service.ipynb)) 
 ```python
 # Generating random locations of items (e.g., restaurants)
 items = [(random.randint(0, 9999), random.randint(0, 9999)) for _ in range(3000000)]
@@ -56,7 +56,7 @@ print(f"Execution time: {end_time - start_time} seconds")
 - Geohashing does precisely this. Geohashing is a public-domain geocoding system that encodes a geographic location into a short string of characters. It helps with proximity searches by dividing the world into a grid of varying sizes and using a base-32 string to represent a specific cell within that grid.
 - The length of the geohash depends on the desired accuracy. For example, a geohash with ten characters represents a grid with an area of 1.19 m x 0.59 m. 
 - If desired accuracy is lower or the permissible search radius is higher, then only the first few characters can be used to compare from the client's geohash, the more characters match (from left to right), the lesser the area of the smallest common grid they both share. ![](https://storage.googleapis.com/memvp-25499.appspot.com/images/Screenshot%202023-08-13%20013955.png17d8c74d-6944-475f-ae28-8f97bffbfe4d) (Image from: https://www.geospatialworld.net/blogs/polygeohasher-an-optimized-way-to-create-geohashes/) 
-### Simple Geohash Implementation ([Github](https://github.com/yogendra-j/small-experiments/blob/master/proximirt-service.ipynb)) 
+### Simple Geohash Implementation ([Github](https://github.com/yogendra-j/geohash-impl/small-experiments/blob/master/proximirt-service.ipynb)) 
 Even though libraries are available in most programming languages to calculate geohashes, let's try implementing a simplified version. I will use the data used in the previous solution to compare time. 
 ### Step 1: Dividing the Space 
 You can think of geohashing as weaving two threads together. Imagine your x and y coordinates as two different colored threads. By weaving them into a single strand, you create a unique pattern corresponding to a specific grid cell on the map. Now we can use the interleaved coordinates to divide the space into grids. If the last 2 bits from both x and y coordinates are ignored,Â we end up with size 3 x 3 grids. For example, 16 can be represented by **1 0 0 0 0**. If the last two digits vary, they can go from 0 0 to 1 1. So the variation can be from 16 to 19. 
