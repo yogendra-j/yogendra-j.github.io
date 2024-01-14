@@ -51,11 +51,14 @@ print(f"Execution time: {end_time - start_time} seconds")
 # Found 989 items within a distance of 100
 # Execution time: 2.297866106033325 seconds
 ```
+
 ## Better solution: Geohashing 
 - Can the location data (latitude and longitude) be transformed into one value such that the items can be sorted based on the column? Then The client location could also be transformed and searched through in O(log(n)) time. 
 - Geohashing does precisely this. Geohashing is a public-domain geocoding system that encodes a geographic location into a short string of characters. It helps with proximity searches by dividing the world into a grid of varying sizes and using a base-32 string to represent a specific cell within that grid.
 - The length of the geohash depends on the desired accuracy. For example, a geohash with ten characters represents a grid with an area of 1.19 m x 0.59 m. 
-- If desired accuracy is lower or the permissible search radius is higher, then only the first few characters can be used to compare from the client's geohash, the more characters match (from left to right), the lesser the area of the smallest common grid they both share. ![](https://storage.googleapis.com/memvp-25499.appspot.com/images/Screenshot%202023-08-13%20013955.png17d8c74d-6944-475f-ae28-8f97bffbfe4d) (Image from: https://www.geospatialworld.net/blogs/polygeohasher-an-optimized-way-to-create-geohashes/) 
+- If desired accuracy is lower or the permissible search radius is higher, then only the first few characters can be used to compare from the client's geohash, the more characters match (from left to right), the lesser the area of the smallest common grid they both share. ![geohash diagram](https://storage.googleapis.com/memvp-25499.appspot.com/images/Screenshot%202023-08-13%20013955.png17d8c74d-6944-475f-ae28-8f97bffbfe4d) (Image from: https://www.geospatialworld.net/blogs/polygeohasher-an-optimized-way-to-create-geohashes/) 
+
+
 ### Simple Geohash Implementation ([Github](https://github.com/yogendra-j/small-experiments/blob/6311724f99aa105eca9b3a04c4c7c7a7f6f7976f/geohash-impl/proximirt-service.ipynb)) 
 Even though libraries are available in most programming languages to calculate geohashes, let's try implementing a simplified version. I will use the data used in the previous solution to compare time. 
 ### Step 1: Dividing the Space 
