@@ -26,70 +26,70 @@ If you have a large number of duplicate files in google drive for any reason (mi
 ```js
 function findDuplicates() {
 
-  var scriptProperties = PropertiesService.getScriptProperties();
+ var scriptProperties = PropertiesService.getScriptProperties();
 
-  var continuationToken = scriptProperties.getProperty('continuationToken111');
+ var continuationToken = scriptProperties.getProperty('continuationToken111');
 
-  var sheet = SpreadsheetApp.openById('GOOGLE_SHEET_ID').getActiveSheet();
+ var sheet = SpreadsheetApp.openById('GOOGLE_SHEET_ID').getActiveSheet();
 
-  var fileNames = getFileNamesFromSheet(sheet);
+ var fileNames = getFileNamesFromSheet(sheet);
 
-  // Search for files that are not in the trash
-  var files = continuationToken ? DriveApp.continueFileIterator(continuationToken) : DriveApp.searchFiles('trashed = false');
+ // Search for files that are not in the trash
+ var files = continuationToken ? DriveApp.continueFileIterator(continuationToken) : DriveApp.searchFiles('trashed = false');
 
-  var startTime = (new Date()).getTime();
+ var startTime = (new Date()).getTime();
 
-  while (files.hasNext() && (new Date()).getTime() - startTime < 260000) { // to make sure the execution completes within 5 min, before next execution is triggered
+ while (files.hasNext() && (new Date()).getTime() - startTime < 260000) { // to make sure the execution completes within 5 min, before next execution is triggered
 
-    var file = files.next();
-    var name = file.getName();
+  var file = files.next();
+  var name = file.getName();
 
-    if (fileNames[name]) {
-      Logger.log('Duplicate: ' + name + ' ' + file.getUrl());
+  if (fileNames[name]) {
+   Logger.log('Duplicate: ' + name + ' ' + file.getUrl());
 
-      try {
-        file.setTrashed(true);
-      } catch (e) {
-        Logger.log(e)
-      }
+   try {
+    file.setTrashed(true);
+   } catch (e) {
+    Logger.log(e)
+   }
 
-    } else {
+  } else {
 
-      fileNames[name] = true;
+   fileNames[name] = true;
 
-      sheet.appendRow([name]); // Add new file name to the sheet
-    }
-  }
+   sheet.appendRow([name]); // Add new file name to the sheet
+  }
+ }
 
-  if (files.hasNext()) {
+ if (files.hasNext()) {
 
-    // Save the continuation token if there are more files to process
-    scriptProperties.setProperty('continuationToken111', files.getContinuationToken());
+  // Save the continuation token if there are more files to process
+  scriptProperties.setProperty('continuationToken111', files.getContinuationToken());
 
-  } else {
-    Logger.log('no files left');
-  }
+ } else {
+  Logger.log('no files left');
+ }
 
 }
 
 
 function getFileNamesFromSheet(sheet) {
 
-  var fileNames = {};
+ var fileNames = {};
 
-  if (sheet.getLastRow() < 1)
+ if (sheet.getLastRow() < 1)
 
-    return fileNames;
+  return fileNames;
 
-  var rows = sheet.getRange(1, 1, sheet.getLastRow()).getValues();
+ var rows = sheet.getRange(1, 1, sheet.getLastRow()).getValues();
 
-  rows.forEach(function(row) {
+ rows.forEach(function(row) {
 
-    fileNames[row[0]] = true;
+  fileNames[row[0]] = true;
 
-  });
+ });
 
-  return fileNames;
+ return fileNames;
 
 }
 ```
