@@ -36,11 +36,78 @@ pnpm tsc --init
 
 Add the following content to the `tsconfig.json` file:
 
-```json
+```jsonc
 {
   "compilerOptions": {
-    // default options
+     /* Common options for every project: */
+    /* ******************************************************** */
+    /* ******************************************************** */
+
+    /* allows you to use common js packages from es modules */
+    "esModuleInterop": true,
+
+    /* makes ide fast and doesn't show type errors inside the npm packages you use */
+    "skipLibCheck": true,
+
+    /* can be adjusted */
+    "target": "es2022",
+
+     /* allows you to use js files in your project */
+    "allowJs": true,
+
+    /* allows you to import json files */
+    "resolveJsonModule": true,
+
+    /* makes every file a module so no 'cannot redeclare block-scoped variables` error */
+    "moduleDetection": "force",
+
+    /* warns you about code that single-file transpilers like Babel can't handle */
+    /*correctly, preventing runtime issues with features like */
+    /* const enums and namespaces without changing */   
+    /* TypeScript's behavior. */
+    "isolatedModules": true,
+
+    /* TS drops type imports from emitted js. */
+    /* So, if the import is a type/interface it'll be dropped. */
+    /* But if its a class then it'll be kept. TS can make this distinction but some other transpilers can't */
+    /* With this option, any import like: `import {type Card} from ./car;` will be dropped */
+    /* and any import like: `import {Card} from ./car;` will be kept. You get what you see. */
+    "verbatimModuleSyntax": true,
+
+
+    /* strict options */
+
+    /* enables all strict type checking options */
+    "strict": true,
+
+    /* makes it so you have to use override to override methods */
+    "noImplicitOverride": true,
+
+    /* enables strict null/undefined checks for arrays/objects */
+    "noUncheckedIndexedAccess": true,
+
+    /* ******************************************************** */
+    /* ******************************************************** */
+
+
+    /* transpilation options */
+    /* ******************************************************** */
+    /* ******************************************************** */
+
+
+    "lib": ["es2022", "dom", "dom.iterable"], // omit dom* if not running in browser
+
+    /* If using tsc */
+    "module": "NodeNext", // `moduleResolution: NodeNext` is implied from this option
     "outDir": "./dist",
+    "sourceMap": true,
+
+    /* If using bundler and/or other transpilers */
+    "module": "preserve", // `moduleResolution: Bundler` is implied from this option
+    "noEmit": true,
+
+    /* ******************************************************** */
+    /* ******************************************************** */
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
@@ -113,7 +180,7 @@ export default config;
 
 ## Step 8: Add scripts to `package.json`
 
-```json
+```jsonc
 {
   "scripts": {
     "dev": "node --env-file=.env --watch -r ts-node/register src/index.ts",
@@ -126,10 +193,3 @@ export default config;
   }
 }
 ```
-
-
-
-
-
-
-
