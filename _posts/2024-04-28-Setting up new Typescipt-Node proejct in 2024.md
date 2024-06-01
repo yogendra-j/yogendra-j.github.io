@@ -124,8 +124,10 @@ pnpm create @eslint/config@latest
 <!-- write a note that tsconfig file will show error until a ts file is added -->
 
 > Note: `tsconfig.json` file will show error until atleast one `.ts` file is added to the project.
+{: .prompt-danger }
 
 > Note: For making eslint.config.mjs work with eslint extension in vscode, you may need to add the following to your vscode settings.json file: `"eslint.experimental.useFlatConfig": true`
+{: .prompt-info }
 
 ## Step 6: Setup prettier configuration
 Install prettier extension in vscode.
@@ -144,7 +146,8 @@ Now, create a `.prettierrc` file in the root of the project and add the followin
 }
 ```
 
-Add `eslint-config-prettier` in the end of `eslint.config.mjs` file.
+> Add `eslint-config-prettier` in the end of `eslint.config.mjs` file.
+{: .prompt-tip }
 
 Then add `.prettierignore` file in the root of the project and add the following content:
 
@@ -153,7 +156,10 @@ node_modules
 dist
 ```
 
-## Step 7: Setup `jest` for testing
+## Step 7: Setup `jest`/`vitest` for testing
+
+> You can also use `vitest` for testing. It is a faster alternative to jest which requires no configuration. just run `pnpm i -D vitest` and add `vitest` to the test script in `package.json`. Also add `vitest/globals` in the types field of `tsconfig.json`.
+{: .prompt-tip }
 
 ```bash
 pnpm i -D jest ts-jest @types/jest
@@ -183,9 +189,9 @@ export default config;
 ```jsonc
 {
   "scripts": {
-    "dev": "node --env-file=.env --watch -r ts-node/register src/index.ts",
+    "dev": "node --env-file=.env --watch --loader ts-node/esm src/main.ts",
     "build": "tsc",
-    "test": "jest", //or node test runner
+    "test": "jest", //or vitest
     "lint": "eslint .",
     "format:fix": "prettier --write . --ignore-unknown",
     "format:check": "prettier --check . --ignore-unknown",
