@@ -8,6 +8,8 @@ tags: [database, db, read uncommitted, repeatable read]     # TAG names should a
 ### Introduction
 Isolation levels define the degree of visibility that one transaction has over the changes made by another concurrent transaction. This article dives into the isolation levels in MySQL and PostgreSQL (PgSQL), comparing their implementations and default settings.
 
+![Database Isolation Levels](/assets/img/mysqlvspostgres.webp)
+
 ### Overview of Isolation Levels
 According to the SQL standard, there are four isolation levels:
 
