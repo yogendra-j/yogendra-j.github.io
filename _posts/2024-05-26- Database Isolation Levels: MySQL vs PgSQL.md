@@ -3,6 +3,7 @@ title: "Database Isolation Levels: MySQL vs PgSQL"
 date: 2024-05-26 00:00:00 +0530
 categories: [isolation, sql]
 tags: [database, db, read uncommitted, repeatable read]     # TAG names should always be lowercase
+description: A detailed comparison of isolation levels in MySQL and PostgreSQL (PgSQL), including their implementations and default settings using practical examples with docker container and SQL queries.
 ---
 
 ### Introduction

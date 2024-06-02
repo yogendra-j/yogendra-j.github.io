@@ -3,6 +3,7 @@ title: Setting Up New Typescript-Node Project in 2024
 date: 2024-04-28 00:00:00 +0530
 categories: [init, node]
 tags: [typescript, init, setup, pnpm, lint, ts-node, watch, prettier]     # TAG names should always be lowercase
+description: In this post, we will see how to setup a new typescript-node project in 2024. We will use `pnpm` as package manager, `ts-node` for running typescript code directly, `eslint` for linting, `prettier` for formatting and node --watch for auto-reloading the server.
 ---
 
 

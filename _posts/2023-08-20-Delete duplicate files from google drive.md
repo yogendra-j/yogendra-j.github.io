@@ -3,6 +3,7 @@ title: Delete duplicate files from google drive
 date: 2023-08-20 00:00:00 +0530
 categories: [useful-scripts, javascript]
 tags: [js, googlescripts, triggers, googlesheets]     # TAG names should always be lowercase
+description: Delete duplicate files from google drive using google scripts and google sheets.
 ---
 
 

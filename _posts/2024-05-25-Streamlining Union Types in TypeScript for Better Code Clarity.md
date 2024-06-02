@@ -3,6 +3,7 @@ title: Streamlining Union Types in TypeScript for Better Code Clarity
 date: 2024-05-25 00:00:00 +0530
 categories: [typescript, union-types]
 tags: [ts, types, union, clean]     # TAG names should always be lowercase
+description: Using discriminated union types in TypeScript to streamline union types for better code clarity.
 ---
 
 

@@ -3,6 +3,7 @@ title: Finding Nearby Locations Fast- A Geohashing Guide with Python
 date: 2023-08-13 00:00:00 +0530
 categories: [system-design, python]
 tags: [geohash, proximity, location]     # TAG names should always be lowercase
+description: The efficient way to find all items near a given location(lat, long) using python.
 ---
 
 ## Problem statement: 
