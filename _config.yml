@@ -18,12 +18,12 @@ timezone: Asia/Calcutta
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Yogendra's TechTales # the main title
+title: Yogendra's Tech Blog # the main title
 
 tagline: Tech notes, learnings, opinions .... # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  BinaryBlueprint is a technical blog site. Talks about Golang, Go, java, javascript, js, html, css, system design. Technical blogs on various topics by yogendra jaiswal, software engineer. Dive into BinaryBlueprint for essential insights and expert tutorials in software engineering. Whether you're mastering programming languages or exploring new tech trends, we provide the detailed guides and resources you need. Perfect for developers of all levels seeking to sharpen their skills and stay ahead in the tech world. Subscribe today to never miss an update!
+  Yogendra's Tech Blog is a technical blog site. Talks about Golang, Go, java, javascript, js, html, css, system design. Technical blogs on various topics by yogendra jaiswal, software engineer. Dive into Yogendra's Tech Blog for essential insights and expert tutorials in software engineering. Whether you're mastering programming languages or exploring new tech trends, we provide the detailed guides and resources you need. Perfect for developers of all levels seeking to sharpen their skills and stay ahead in the tech world. Subscribe today to never miss an update!
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: "https://yogendra-j.github.io"
