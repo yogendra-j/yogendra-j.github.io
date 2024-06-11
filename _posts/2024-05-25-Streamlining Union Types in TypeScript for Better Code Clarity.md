@@ -5,7 +5,7 @@ categories: [typescript, union-types]
 tags: [ts, types, union, clean]     # TAG names should always be lowercase
 description: Using discriminated union types in TypeScript to streamline union types for better code clarity.
 ---
-
+![ai generated image](/assets/img/typescript-union.jpg)
 
 In TypeScript, managing union types often introduces complexity, particularly with type guards, leading to verbose and less transparent code. Consider this typical scenario:
 ```ts
