@@ -5,7 +5,7 @@ theme: jekyll-theme-chirpy
 
 # Change the following value to '/PROJECT_NAME' ONLY IF your site type is GitHub Pages Project sites
 # and doesn't have a custom domain.
-baseurl: "https://www.yogendra-jaiswal.xyz"
+# baseurl: "https://www.yogendra-jaiswal.xyz"
 
 # The language of the webpage › http://www.lingoes.net/en/translator/langcode.htm
 # If it has the same name as one of the files in folder `_data/locales`, the layout language will also be changed,
@@ -26,7 +26,7 @@ description: >- # used by seo meta and the atom feed
   Yogendra's Tech Blog is a technical blog site. Talks about Golang, Go, java, javascript, js, html, css, system design. Technical blogs on various topics by yogendra jaiswal, software engineer. Dive into Yogendra's Tech Blog for essential insights and expert tutorials in software engineering. Whether you're mastering programming languages or exploring new tech trends, we provide the detailed guides and resources you need. Perfect for developers of all levels seeking to sharpen their skills and stay ahead in the tech world. Subscribe today to never miss an update!
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: "https://yogendra-j.github.io"
+url: "https://yogendra-jaiswal.xyz"
 
 github:
   username: yogendra-j # change to your github username
