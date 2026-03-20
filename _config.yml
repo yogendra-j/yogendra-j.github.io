@@ -18,26 +18,23 @@ timezone: Asia/Calcutta
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Yogendra's Tech Blog # the main title
+title: Yogendra Jaiswal
 
-tagline: Tech notes, learnings, opinions .... # it will display as the sub-title
+tagline: Backend engineer writing about systems, TypeScript, Go, SQL, and pragmatic software design.
 
 description: >- # used by seo meta and the atom feed
-  Yogendra's Tech Blog is a technical blog site. Talks about Golang, Go, java, javascript, js, html, css, system design. Technical blogs on various topics by yogendra jaiswal, software engineer. Dive into Yogendra's Tech Blog for essential insights and expert tutorials in software engineering. Whether you're mastering programming languages or exploring new tech trends, we provide the detailed guides and resources you need. Perfect for developers of all levels seeking to sharpen their skills and stay ahead in the tech world. Subscribe today to never miss an update!
+  Personal site of Yogendra Jaiswal, a software engineer at Incubyte. Explore backend engineering notes, TypeScript and Go articles, SQL and system design write-ups, selected projects, and interview-ready technical deep dives.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: "https://yogendra-jaiswal.xyz"
+url: "https://www.yogendra-jaiswal.xyz"
 
 github:
   username: yogendra-j # change to your github username
 
-twitter:
-  username: # change to your twitter username
-
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: yogendra jaiswal
+  name: Yogendra Jaiswal
   email: yogendra.jaiswal.503@gmail.com # change to your email address
   links:
     # The first element serves as the copyright owner's link
@@ -45,6 +42,45 @@ social:
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     - https://www.linkedin.com/in/yogendra-jaiswal
+
+social_preview_image: "/assets/img/profile.jpg"
+
+profile:
+  job_title: Software Engineer
+  company: Incubyte
+  company_url: https://incubyte.co
+  location: India
+  github: https://github.com/yogendra-j
+  linkedin: https://www.linkedin.com/in/yogendra-jaiswal/
+  site: https://www.yogendra-jaiswal.xyz
+  summary: >
+    Full-stack engineer focused on backend systems, APIs, developer tooling,
+    TypeScript, Go, Java, PostgreSQL, and system design.
+  skills:
+    - Backend engineering
+    - API design
+    - TypeScript
+    - Go
+    - Java
+    - NestJS
+    - Next.js
+    - PostgreSQL
+    - System design
+    - SQL
+    - Redis
+  seo_keywords:
+    - Yogendra Jaiswal
+    - software engineer
+    - backend engineer
+    - full-stack developer
+    - TypeScript
+    - Go
+    - Java
+    - PostgreSQL
+    - system design
+    - SQL
+    - NestJS
+    - Next.js
 
 logo: "/assets/img/favicons/favicon.ico" # the logo on the top left corner
 
@@ -67,7 +103,7 @@ google_analytics:
 #     light  - Use the light color scheme
 #     dark   - Use the dark color scheme
 #
-theme_mode: dark # [light|dark]
+theme_mode: # [light|dark]
 
 # The CDN endpoint for images.
 # Notice that once it is assigned, the CDN url
@@ -77,7 +113,7 @@ theme_mode: dark # [light|dark]
 img_cdn:
 
 # the avatar on sidebar, support local or CORS resources
-avatar: "./assets/img/profile.jpg"
+avatar: "/assets/img/profile.jpg"
 
 # boolean type, the global switch for TOC in posts.
 toc: true

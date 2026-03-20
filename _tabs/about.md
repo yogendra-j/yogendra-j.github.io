@@ -1,19 +1,38 @@
 ---
 # the default layout is 'page'
+title: About
+description: Learn about Yogendra Jaiswal, a software engineer at Incubyte focused on backend systems, TypeScript, Go, SQL, and system design.
+image: /assets/img/profile.jpg
 icon: fas fa-info-circle
-order: 4
+order: 3
 ---
 
 ## Yogendra Jaiswal
 
+I am a software engineer currently working at **[Incubyte](https://incubyte.co)**. This site is both a technical blog and a compact portfolio: a place to document what I build, how I think about backend systems, and the technical topics I can go deep on in interviews.
 
-Hi there! 👋 I'm Yogendra Jaiswal, a passionate software developer with a knack for creating innovative solutions and a keen eye for detail. Welcome to my Obsidian notes, a collection of thoughts, insights, and learnings I've gathered throughout my journey in tech.
+## Focus Areas
 
+- Backend APIs and application design
+- TypeScript, Node.js, NestJS, and Next.js
+- Go and Java
+- PostgreSQL, SQL behavior, and data consistency
+- System design, performance, and reliability
 
-- 🔭 Currently working at: **[Incubyte](https://incubyte.co)**
-- 🌱 Learning: **Go, system design**
-- 📫 How to reach me: **[LinkedIn](https://www.linkedin.com/in/yogendra-jaiswal/), [Github](https://github.com/yogendra-j)**
+## What You Will Find Here
 
-## About Blog
+- Write-ups on engineering topics I care about, such as SQL isolation levels, TypeScript API design, and geospatial lookup strategies
+- Public projects and experiments from my GitHub profile
+- Notes that reflect how I approach software design, debugging, and tradeoffs in real systems
 
-Here you'll find a collection of notes that I've meticulously crafted to share my knowledge and insights. Feel free to explore, and don't hesitate to reach out if you have any questions or comments!
+## Current Snapshot
+
+- Role: **Software Engineer**
+- Company: **[Incubyte](https://incubyte.co)**
+- Public code: **[GitHub](https://github.com/yogendra-j)**
+- Professional profile: **[LinkedIn](https://www.linkedin.com/in/yogendra-jaiswal/)**
+- Contact: **[yogendra.jaiswal.503@gmail.com](mailto:yogendra.jaiswal.503@gmail.com)**
+
+## Why This Site Exists
+
+Most portfolios stop at listing skills. I prefer showing my thinking through concrete projects and technical writing. If you are evaluating me for a role, the best entry points are the **Projects**, **Skills**, and **latest posts** sections.

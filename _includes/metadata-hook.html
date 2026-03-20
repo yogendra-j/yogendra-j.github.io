@@ -1,0 +1,70 @@
+{% assign merged_keywords = '' | split: '' %}
+
+{% if site.profile.seo_keywords %}
+  {% for keyword in site.profile.seo_keywords %}
+    {% assign merged_keywords = merged_keywords | push: keyword %}
+  {% endfor %}
+{% endif %}
+
+{% if page.tags %}
+  {% for keyword in page.tags %}
+    {% assign merged_keywords = merged_keywords | push: keyword %}
+  {% endfor %}
+{% endif %}
+
+{% if page.categories %}
+  {% for keyword in page.categories %}
+    {% assign merged_keywords = merged_keywords | push: keyword %}
+  {% endfor %}
+{% endif %}
+
+{% if page.title %}
+  {% assign merged_keywords = merged_keywords | push: page.title %}
+{% endif %}
+
+{% assign keyword_string = merged_keywords | uniq | join: ', ' %}
+
+<meta name="author" content="{{ site.social.name }}">
+{% if keyword_string != '' %}
+  <meta name="keywords" content="{{ keyword_string }}">
+{% endif %}
+
+{% assign same_as = site.social.links | jsonify %}
+{% assign knows_about = site.profile.skills | jsonify %}
+
+{% if page.url == '/' or page.url == '/about/' or page.url == '/projects/' or page.url == '/skills/' %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": {{ site.social.name | jsonify }},
+      "url": {{ site.url | jsonify }},
+      "image": {{ site.social_preview_image | absolute_url | jsonify }},
+      "jobTitle": {{ site.profile.job_title | jsonify }},
+      "worksFor": {
+        "@type": "Organization",
+        "name": {{ site.profile.company | jsonify }},
+        "url": {{ site.profile.company_url | jsonify }}
+      },
+      "description": {{ site.profile.summary | strip | jsonify }},
+      "sameAs": {{ same_as }},
+      "knowsAbout": {{ knows_about }}
+    }
+  </script>
+{% endif %}
+
+{% if page.url == '/' %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": {{ site.title | jsonify }},
+      "url": {{ site.url | append: '/' | jsonify }},
+      "description": {{ site.description | jsonify }},
+      "about": {
+        "@type": "Person",
+        "name": {{ site.social.name | jsonify }}
+      }
+    }
+  </script>
+{% endif %}

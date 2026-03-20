@@ -1,0 +1,76 @@
+featured_repositories:
+  - name: pdf-generator
+    url: https://github.com/yogendra-j/pdf-generator
+    live_url: https://pdf-generator-lemon.vercel.app
+    language: TypeScript
+    updated_at: 2026-01-16
+    summary: A production-style PDF generation app with a live deployment.
+    highlights:
+      - Full-stack TypeScript implementation
+      - Real deployed product surface
+      - Useful portfolio piece for API and document workflows
+
+  - name: small-experiments
+    url: https://github.com/yogendra-j/small-experiments
+    language: Go
+    updated_at: 2023-09-16
+    summary: Algorithm and command-line experiments implemented in Go.
+    highlights:
+      - Practical Go experiments
+      - Algorithms and tooling exploration
+      - Good signal for engineering curiosity
+
+  - name: node-typescipt-starter
+    url: https://github.com/yogendra-j/node-typescipt-starter
+    language: TypeScript
+    updated_at: 2024-04-28
+    summary: Starter template for a modern TypeScript Node.js codebase.
+    highlights:
+      - Tooling and project setup focus
+      - Useful for interview discussion around standards
+      - Complements the matching blog post
+
+  - name: claude-code-opencode
+    url: https://github.com/yogendra-j/claude-code-opencode
+    language: JavaScript
+    updated_at: 2026-03-19
+    summary: Recent JavaScript work showing active experimentation with developer tooling.
+    highlights:
+      - Fresh activity signal
+      - Tooling-oriented engineering
+      - Shows current hands-on work
+
+skill_groups:
+  - title: Backend
+    items:
+      - API design
+      - TypeScript
+      - Go
+      - Java
+      - SQL
+      - PostgreSQL
+      - Reliability and data consistency
+
+  - title: Application Development
+    items:
+      - NestJS
+      - Next.js
+      - Node.js
+      - Frontend-backend integration
+      - Developer tooling
+
+  - title: Interview Topics
+    items:
+      - System design
+      - Isolation levels
+      - Idempotency
+      - Caching
+      - Type systems
+      - Data modeling
+
+interview_topics:
+  - Building reliable APIs with idempotency and retries
+  - SQL isolation levels and consistency tradeoffs
+  - Caching strategies and invalidation choices
+  - TypeScript design for safer APIs
+  - Geospatial lookup and indexing approaches
