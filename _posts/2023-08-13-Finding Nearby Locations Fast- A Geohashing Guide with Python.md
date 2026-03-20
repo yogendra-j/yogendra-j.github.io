@@ -1,9 +1,10 @@
 ---
-title: Finding Nearby Locations Fast- A Geohashing Guide with Python
+title: Finding Nearby Locations Fast with Geohashing in Python
 date: 2023-08-13 00:00:00 +0530
 categories: [system-design, python]
 tags: [geohash, proximity, location]     # TAG names should always be lowercase
-description: The efficient way to find all items near a given location(lat, long) using python.
+description: A practical walkthrough of using geohashing to make proximity search faster than a naive linear scan.
+pin: true
 ---
 
 ## Problem statement: 

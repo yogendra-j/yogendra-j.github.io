@@ -1,9 +1,11 @@
 ---
-title: Delete duplicate files from google drive
+title: Delete Duplicate Files from Google Drive with Apps Script
 date: 2023-08-20 00:00:00 +0530
 categories: [useful-scripts, javascript]
 tags: [js, googlescripts, triggers, googlesheets]     # TAG names should always be lowercase
-description: Delete duplicate files from google drive using google scripts and google sheets.
+description: Delete duplicate files from Google Drive by combining Apps Script, continuation tokens, and a Google Sheet as lightweight persistence.
+hidden: true
+sitemap: false
 ---
 
 
