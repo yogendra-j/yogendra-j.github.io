@@ -34,11 +34,11 @@ featured_repositories:
     url: https://github.com/yogendra-j/claude-code-opencode
     language: JavaScript
     updated_at: 2026-03-19
-    summary: Recent JavaScript work showing active experimentation with developer tooling.
+    summary: Recent JavaScript work showing active experimentation with AI-assisted developer tooling and Claude/OpenCode workflows.
     highlights:
       - Fresh activity signal
-      - Tooling-oriented engineering
-      - Shows current hands-on work
+      - Applied AI and tooling-oriented engineering
+      - Shows current hands-on work with agent workflows
 
 skill_groups:
   - title: Backend

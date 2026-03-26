@@ -20,10 +20,10 @@ timezone: Asia/Calcutta
 
 title: Yogendra Jaiswal
 
-tagline: Backend engineer writing about systems, TypeScript, Go, SQL, and pragmatic software design.
+tagline: Backend and applied AI engineer writing about systems, developer tooling, TypeScript, Go, and pragmatic software design.
 
 description: >- # used by seo meta and the atom feed
-  Personal site of Yogendra Jaiswal, a software engineer at Incubyte. Explore backend engineering notes, TypeScript and Go articles, SQL and system design write-ups, selected projects, and interview-ready technical deep dives.
+  Personal site of Yogendra Jaiswal, a software engineer at Incubyte focused on backend engineering and applied AI. Explore notes on systems, TypeScript, Go, AI developer tooling, agent workflows, and practical software design.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: "https://www.yogendra-jaiswal.xyz"
@@ -54,11 +54,16 @@ profile:
   linkedin: https://www.linkedin.com/in/yogendra-jaiswal/
   site: https://www.yogendra-jaiswal.xyz
   summary: >
-    Full-stack engineer focused on backend systems, APIs, developer tooling,
-    TypeScript, Go, Java, PostgreSQL, and system design.
+    Software engineer focused on backend systems, APIs, developer tooling,
+    and applied AI engineering, including LLM-powered workflows, agent
+    orchestration, TypeScript, Go, Java, PostgreSQL, and system design.
   skills:
     - Backend engineering
+    - Applied AI engineering
     - API design
+    - LLM application development
+    - Agent orchestration
+    - AI developer tooling
     - TypeScript
     - Go
     - Java
@@ -72,7 +77,10 @@ profile:
     - Yogendra Jaiswal
     - software engineer
     - backend engineer
+    - applied ai engineer
+    - ai engineer
     - full-stack developer
+    - llm engineering
     - TypeScript
     - Go
     - Java
@@ -81,6 +89,8 @@ profile:
     - SQL
     - NestJS
     - Next.js
+    - agent orchestration
+    - developer tooling
 
 logo: "/assets/img/favicons/favicon.ico" # the logo on the top left corner
 

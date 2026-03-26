@@ -1,7 +1,7 @@
 ---
 # the default layout is 'page'
 title: About
-description: Learn about Yogendra Jaiswal, a software engineer at Incubyte focused on backend systems, TypeScript, Go, SQL, and system design.
+description: Learn about Yogendra Jaiswal, a software engineer at Incubyte focused on backend systems, applied AI, TypeScript, Go, SQL, and system design.
 image: /assets/img/profile.jpg
 icon: fas fa-info-circle
 order: 3
@@ -9,11 +9,15 @@ order: 3
 
 ## Yogendra Jaiswal
 
-I am a software engineer currently working at **[Incubyte](https://incubyte.co)**. This site is both a technical blog and a compact portfolio: a place to document what I build, how I think about backend systems, and the technical topics I can go deep on in interviews.
+I am a software engineer currently working at **[Incubyte](https://incubyte.co)**. My core background is backend engineering, and my current work is increasingly shaped by applied AI: building practical tooling, agent workflows, and LLM-powered developer experiences that still need to behave like real software systems.
+
+This site is both a technical blog and a compact portfolio: a place to document what I build, how I think about backend systems, and the technical areas I can go deep on in interviews and hands-on engineering work.
 
 ## Focus Areas
 
 - Backend APIs and application design
+- Applied AI engineering, LLM integrations, and agent workflows
+- AI-assisted developer tooling, prompt and tool design, and workflow guardrails
 - TypeScript, Node.js, NestJS, and Next.js
 - Go and Java
 - PostgreSQL, SQL behavior, and data consistency
@@ -21,7 +25,7 @@ I am a software engineer currently working at **[Incubyte](https://incubyte.co)*
 
 ## What You Will Find Here
 
-- Write-ups on engineering topics I care about, such as SQL isolation levels, TypeScript API design, and geospatial lookup strategies
+- Write-ups on engineering topics I care about, such as SQL isolation levels, TypeScript API design, agent orchestration, and geospatial lookup strategies
 - Public projects and experiments from my GitHub profile
 - Notes that reflect how I approach software design, debugging, and tradeoffs in real systems
 
@@ -35,4 +39,4 @@ I am a software engineer currently working at **[Incubyte](https://incubyte.co)*
 
 ## Why This Site Exists
 
-Most portfolios stop at listing skills. I prefer showing my thinking through concrete projects and technical writing. If you are evaluating me for a role, the best entry points are the **Projects**, **Skills**, and **latest posts** sections.
+Most portfolios stop at listing skills. I prefer showing my thinking through concrete projects and technical writing. If you are evaluating me for a role, the best entry points are the **Projects**, **About**, and **latest posts** sections.
