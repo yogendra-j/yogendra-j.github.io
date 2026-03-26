@@ -28,11 +28,14 @@
 {% if keyword_string != '' %}
   <meta name="keywords" content="{{ keyword_string }}">
 {% endif %}
+{% if page.url == '/tags/' or page.url == '/categories/' or page.url contains '/tags/' or page.url contains '/categories/' %}
+  <meta name="robots" content="noindex,follow">
+{% endif %}
 
 {% assign same_as = site.social.links | jsonify %}
 {% assign knows_about = site.profile.skills | jsonify %}
 
-{% if page.url == '/' or page.url == '/about/' or page.url == '/projects/' or page.url == '/skills/' %}
+{% if page.url == '/' or page.url == '/about/' or page.url == '/projects/' %}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",

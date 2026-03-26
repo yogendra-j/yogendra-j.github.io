@@ -1,14 +1,14 @@
 ---
-title: "Database Isolation Levels: MySQL vs PgSQL"
+title: "PostgreSQL Isolation Levels vs MySQL: A Practical Comparison"
 date: 2024-05-26 00:00:00 +0530
 categories: [isolation, sql]
 tags: [database, db, read uncommitted, repeatable read]     # TAG names should always be lowercase
-description: A detailed comparison of isolation levels in MySQL and PostgreSQL (PgSQL), including their implementations and default settings using practical examples with docker container and SQL queries.
+description: A practical comparison of PostgreSQL isolation levels vs MySQL, including default settings, read phenomena, and hands-on SQL examples you can run locally.
 pin: true
 ---
 
 ### Introduction
-Isolation levels define the degree of visibility that one transaction has over the changes made by another concurrent transaction. This article dives into the isolation levels in MySQL and PostgreSQL (PgSQL), comparing their implementations and default settings.
+Isolation levels define how much of another transaction's work your current transaction is allowed to observe. This article compares PostgreSQL isolation levels with MySQL, focusing on practical behavior, default settings, and the tradeoffs that matter when you debug real concurrency issues.
 
 ![Database Isolation Levels](/assets/img/mysqlvspostgres.webp)
 
@@ -22,34 +22,34 @@ According to the SQL standard, there are four isolation levels:
 | Repeatable Read      | Not possible               | Not possible           | Allowed, but not in PG     | Possible                  |
 | Serializable         | Not possible               | Not possible           | Not possible               | Not possible              |
 
-### Default Isolation Levels in MySQL and PgSQL
+### Default Isolation Levels in MySQL and PostgreSQL
 - **MySQL**: The default isolation level is `Repeatable Read`.
-- **PgSQL**: The default isolation level is `Read Committed`.
+- **PostgreSQL**: The default isolation level is `Read Committed`.
 
 ### Detailed Comparison of Isolation Levels
 
 #### Read Uncommitted
 - **Explanation**: This level allows transactions to read uncommitted changes made by other transactions, leading to dirty reads.
 - **MySQL Implementation**: MySQL supports true `Read Uncommitted`, allowing dirty reads.
-- **PgSQL Implementation**: PostgreSQL does not have a true `Read Uncommitted` level. In PgSQL, `Read Uncommitted` is essentially the same as `Read Committed`.
+- **PostgreSQL Implementation**: PostgreSQL does not have a true `Read Uncommitted` level. In PostgreSQL, `Read Uncommitted` is effectively treated as `Read Committed`.
 
 #### Read Committed
 - **Explanation**: This level allows a query to see data changes from recently committed transactions even if they were committed after the start of the transaction query belongs to. It prevents dirty reads but allows `non-repeatable reads`.
 - **MySQL Implementation**: MySQL supports `Read Committed`, ensuring that only committed data is read.
-- **PgSQL Implementation**: `Read Committed` is the default isolation level in PgSQL.
+- **PostgreSQL Implementation**: `Read Committed` is the default isolation level in PostgreSQL.
 
 #### Repeatable Read
 - **Explanation**: This level ensures that if a transaction reads a row, subsequent reads will see the same data, preventing `non-repeatable reads`. However, it allows phantom reads according to the SQL standard.
 - **MySQL Implementation**: MySQL supports `Repeatable Read` and allows phantom reads.
-- **PgSQL Implementation**: In PgSQL, `Repeatable Read` does not allow phantom reads. Instead, if a concurrent transaction modifies the data, an error is thrown (`ERROR: could not serialize access due to concurrent update`).
+- **PostgreSQL Implementation**: In PostgreSQL, `Repeatable Read` does not allow phantom reads. Instead, if a concurrent transaction modifies the data, an error is thrown (`ERROR: could not serialize access due to concurrent update`).
 
 #### Serializable
 - **Explanation**: This is the strictest isolation level, ensuring complete isolation from other transactions. It prevents dirty reads, non-repeatable reads, phantom reads, and serialization anomaly. `Serialization anomaly` is when the state resulting from a group of transactions is inconsistent with all the possible ordering of the transactions.
 - **MySQL Implementation**: MySQL supports `Serializable`, ensuring full isolation.
-- **PgSQL Implementation**: PgSQL also supports `Serializable`, ensuring full isolation.
+- **PostgreSQL Implementation**: PostgreSQL also supports `Serializable`, ensuring full isolation.
 
-### Experiment: Repeatable Read in PgSQL
-Let's run an experiment to see how `Repeatable Read` works in PgSQL.
+### Experiment: Repeatable Read in PostgreSQL
+Let's run an experiment to see how `Repeatable Read` works in PostgreSQL.
 
 1. **Run in a Docker Container**:
     ```bash
@@ -99,4 +99,4 @@ Let's run an experiment to see how `Repeatable Read` works in PgSQL.
     - If the first terminal rolls back, the second terminal will run successfully.
 
 ### Conclusion
-Understanding the differences in isolation levels between MySQL and PgSQL is essential for database management and application development. While MySQL and PgSQL both support the standard isolation levels, their default settings and specific behaviors, especially in `Repeatable Read`, can significantly impact how transactions are handled. Choosing the right isolation level for your application ensures data integrity and optimal performance.
+Understanding the differences between PostgreSQL isolation levels and MySQL behavior is essential for database design and application reliability. Both databases support the standard isolation levels, but their default settings and concurrency behavior, especially around `Repeatable Read`, can lead to very different outcomes in production. Choosing the right isolation level for your workload helps protect data integrity without paying unnecessary performance costs.
