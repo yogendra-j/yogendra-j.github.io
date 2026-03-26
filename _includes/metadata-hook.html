@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
+
 {% assign merged_keywords = '' | split: '' %}
 
 {% if site.profile.seo_keywords %}
@@ -35,7 +37,7 @@
 {% assign same_as = site.social.links | jsonify %}
 {% assign knows_about = site.profile.skills | jsonify %}
 
-{% if page.url == '/' or page.url == '/about/' or page.url == '/projects/' %}
+{% if page.url == '/' or page.url == '/about/' or page.url == '/projects/' or page.url == '/projects/agent-orchestrator/' %}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
