@@ -5,6 +5,10 @@ categories: [ai, developer-tools]
 tags: [ai-coding-agents, testing, e2e, playwright, screenshots, visual-regression, ci, verification, frontend]
 description: >-
   When agents edit faster than you can click through the UI, batch E2E screenshots and pixel diffs beat browser-in-the-loop checks. Pair with typecheck and unit tests—pixels are not enough.
+pin: true
+sitemap:
+  priority: 0.85
+  changefreq: weekly
 image:
   path: /assets/img/posts/verification-loop-og-1200.jpg
   alt: "Verification loop for AI coding agents — E2E, Playwright, pixel diff, CI."
