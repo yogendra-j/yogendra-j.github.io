@@ -45,7 +45,8 @@ social:
 
 social_preview_image: "/assets/img/profile.jpg"
 
-profile:
+# Not named `profile` — Jekyll's config schema reserves that key for a boolean (build profiling).
+author_profile:
   job_title: Software Engineer
   company: Incubyte
   company_url: https://incubyte.co
