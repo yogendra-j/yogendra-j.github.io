@@ -1,7 +1,7 @@
 ---
 # the default layout is 'page'
 title: About
-description: Learn about Yogendra Jaiswal, a software engineer at Incubyte focused on backend systems, applied AI, TypeScript, Go, SQL, and system design.
+description: Learn about Yogendra Jaiswal, an SDE and software engineer at Incubyte — backend systems, applied AI and LLMs, TypeScript, React, Next.js, Go, SQL, and system design.
 image: /assets/img/profile.jpg
 icon: fas fa-info-circle
 order: 3
@@ -9,7 +9,7 @@ order: 3
 
 ## Yogendra Jaiswal
 
-I am a software engineer currently working at **[Incubyte](https://incubyte.co)**. My core background is backend engineering, and my current work is increasingly shaped by applied AI: building practical tooling, agent workflows, and LLM-powered developer experiences that still need to behave like real software systems.
+I am a software engineer (SDE) currently working at **[Incubyte](https://incubyte.co)**. My core background is backend engineering, and my current work is increasingly shaped by applied AI: building practical tooling, agent workflows, and LLM-powered developer experiences that still need to behave like real software systems. Day to day I work across **TypeScript**, **React**, and **Next.js** where the product surface needs it, alongside APIs and services.
 
 This site is both a technical blog and a compact portfolio: a place to document what I build, how I think about backend systems, and the technical areas I can go deep on in interviews and hands-on engineering work.
 
@@ -18,7 +18,7 @@ This site is both a technical blog and a compact portfolio: a place to document 
 - Backend APIs and application design
 - Applied AI engineering, LLM integrations, and agent workflows
 - AI-assisted developer tooling, prompt and tool design, and workflow guardrails
-- TypeScript, Node.js, NestJS, and Next.js
+- TypeScript, React, Next.js, Node.js, and NestJS
 - Go and Java
 - PostgreSQL, SQL behavior, and data consistency
 - System design, performance, and reliability
@@ -31,7 +31,7 @@ This site is both a technical blog and a compact portfolio: a place to document 
 
 ## Current Snapshot
 
-- Role: **Software Engineer**
+- Role: **Software Engineer (SDE)**
 - Company: **[Incubyte](https://incubyte.co)**
 - Public code: **[GitHub](https://github.com/yogendra-j)**
 - Professional profile: **[LinkedIn](https://www.linkedin.com/in/yogendra-jaiswal/)**

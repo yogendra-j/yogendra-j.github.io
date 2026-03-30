@@ -20,10 +20,10 @@ timezone: Asia/Calcutta
 
 title: Yogendra Jaiswal
 
-tagline: Backend and applied AI engineer writing about systems, developer tooling, TypeScript, Go, and pragmatic software design.
+tagline: Yogendra Jaiswal — SDE and engineer writing about backend systems, AI and LLMs, TypeScript, React, Next.js, Go, and pragmatic software design.
 
 description: >- # used by seo meta and the atom feed
-  Personal site of Yogendra Jaiswal, a software engineer at Incubyte focused on backend engineering and applied AI. Explore notes on systems, TypeScript, Go, AI developer tooling, agent workflows, and practical software design.
+  Personal site of Yogendra Jaiswal, a software development engineer (SDE) at Incubyte: backend engineering, applied AI and LLMs, TypeScript, React, Next.js, developer tooling, agent workflows, and practical software design.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: "https://www.yogendra-jaiswal.xyz"
@@ -47,7 +47,7 @@ social_preview_image: "/assets/img/profile.jpg"
 
 # Not named `profile` — Jekyll's config schema reserves that key for a boolean (build profiling).
 author_profile:
-  job_title: Software Engineer
+  job_title: Software Engineer (SDE)
   company: Incubyte
   company_url: https://incubyte.co
   location: India
@@ -55,9 +55,10 @@ author_profile:
   linkedin: https://www.linkedin.com/in/yogendra-jaiswal/
   site: https://www.yogendra-jaiswal.xyz
   summary: >
-    Software engineer focused on backend systems, APIs, developer tooling,
-    and applied AI engineering, including LLM-powered workflows, agent
-    orchestration, TypeScript, Go, Java, PostgreSQL, and system design.
+    Yogendra Jaiswal is a software engineer and SDE focused on backend systems,
+    APIs, developer tooling, and applied AI engineering — LLM-powered workflows,
+    agent orchestration, TypeScript, React, Next.js, Go, Java, PostgreSQL, and
+    system design.
   skills:
     - Backend engineering
     - Applied AI engineering
@@ -66,30 +67,42 @@ author_profile:
     - Agent orchestration
     - AI developer tooling
     - TypeScript
+    - React
+    - Next.js
     - Go
     - Java
     - NestJS
-    - Next.js
     - PostgreSQL
     - System design
     - SQL
     - Redis
   seo_keywords:
     - Yogendra Jaiswal
+    - Yogendra
+    - Jaiswal
+    - SDE
+    - software development engineer
     - software engineer
+    - engineer
+    - developer
     - backend engineer
     - applied ai engineer
     - ai engineer
-    - full-stack developer
+    - AI
+    - LLM
+    - large language models
     - llm engineering
+    - full-stack developer
     - TypeScript
+    - React
+    - Next.js
+    - NextJS
     - Go
     - Java
     - PostgreSQL
     - system design
     - SQL
     - NestJS
-    - Next.js
     - agent orchestration
     - developer tooling
 
