@@ -53,6 +53,14 @@ jobs:
       - name: Test site
         run: |
           bundle exec htmlproofer _site --disable-external --check-html --allow_hash_href
+          bundle exec ruby -e '
+            require "nokogiri"
+            failures = Dir.glob("_site/**/*.html").filter_map do |path|
+              errors = Nokogiri::HTML(File.read(path)).css(".highlight .err")
+              "#{path}: #{errors.map(&:text).join}" unless errors.empty?
+            end
+            abort failures.join("\n") unless failures.empty?
+          '
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

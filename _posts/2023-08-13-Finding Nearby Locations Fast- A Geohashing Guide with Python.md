@@ -14,11 +14,16 @@ The efficient way to find all items near a given location(lat, long).
 - Use the Haversine formula to calculate distance, then select items within a desirable range. 
 - For a case like Uber, start with a threshold of 500 m; if no cabs are found in the 500 m range, then keep increasing the threshold. If no cabs are found even after increasing the threshold beyond the acceptable range, display the "can't find a ride right now" message. 
 ### Why it's not efficient? 
-- There is no way to avoid linear search. 
-- Indexing or sorting doesn't work for proximity searches. Unlike a simple list where items can be ranked, distances vary depending on location. For example, sorting restaurants by x-coordinates doesn't consider their y-coordinates. Since distance involves both, standard indexing or sorting methods, which rely on unidirectional ranking, are ineffective for this multidimensional problem 
+- This approach checks every item, so it is a linear search.
+- Sorting by just the x-coordinate is not enough because distance also depends on y. Spatial indexes can help; here we'll try a simple grid-based approach.
 
 ### Simple implementation ([Github](https://github.com/yogendra-j/small-experiments/blob/6311724f99aa105eca9b3a04c4c7c7a7f6f7976f/geohash-impl/proximirt-service.ipynb)) 
 ```python
+import math
+import random
+import time
+from collections import defaultdict
+
 # Generating random locations of items (e.g., restaurants)
 items = [(random.randint(0, 9999), random.randint(0, 9999)) for _ in range(3000000)]
 
@@ -58,13 +63,13 @@ print(f"Execution time: {end_time - start_time} seconds")
 - Can the location data (latitude and longitude) be transformed into one value such that the items can be sorted based on the column? Then The client location could also be transformed and searched through in O(log(n)) time. 
 - Geohashing does precisely this. Geohashing is a public-domain geocoding system that encodes a geographic location into a short string of characters. It helps with proximity searches by dividing the world into a grid of varying sizes and using a base-32 string to represent a specific cell within that grid.
 - The length of the geohash depends on the desired accuracy. For example, a geohash with ten characters represents a grid with an area of 1.19 m x 0.59 m. 
-- If desired accuracy is lower or the permissible search radius is higher, then only the first few characters can be used to compare from the client's geohash, the more characters match (from left to right), the lesser the area of the smallest common grid they both share. ![geohash diagram](https://storage.googleapis.com/memvp-25499.appspot.com/images/Screenshot%202023-08-13%20013955.png17d8c74d-6944-475f-ae28-8f97bffbfe4d) (Image from: https://www.geospatialworld.net/blogs/polygeohasher-an-optimized-way-to-create-geohashes/) 
+- If desired accuracy is lower or the permissible search radius is higher, then only the first few characters can be used to compare from the client's geohash, the more characters match (from left to right), the lesser the area of the smallest common grid they both share. See [this explanation of geohash grids](https://www.geospatialworld.net/blogs/polygeohasher-an-optimized-way-to-create-geohashes/) for more detail.
 
 
 ### Simple Geohash Implementation ([Github](https://github.com/yogendra-j/small-experiments/blob/6311724f99aa105eca9b3a04c4c7c7a7f6f7976f/geohash-impl/proximirt-service.ipynb)) 
 Even though libraries are available in most programming languages to calculate geohashes, let's try implementing a simplified version. I will use the data used in the previous solution to compare time. 
 ### Step 1: Dividing the Space 
-You can think of geohashing as weaving two threads together. Imagine your x and y coordinates as two different colored threads. By weaving them into a single strand, you create a unique pattern corresponding to a specific grid cell on the map. Now we can use the interleaved coordinates to divide the space into grids. If the last 2 bits from both x and y coordinates are ignored,Â we end up with size 3 x 3 grids. For example, 16 can be represented by **1 0 0 0 0**. If the last two digits vary, they can go from 0 0 to 1 1. So the variation can be from 16 to 19. 
+You can think of geohashing as weaving two threads together. Imagine your x and y coordinates as two different colored threads. By weaving them into a single strand, you create a unique pattern corresponding to a specific grid cell on the map. Now we can use the interleaved coordinates to divide the space into grids. If the last 2 bits from both x and y coordinates are ignored, we end up with size 4 x 4 grids. For example, 16 can be represented by **1 0 0 0 0**. If the last two digits vary, they can go from 0 0 to 1 1. So the variation can be from 16 to 19.
 #### Code: 
 ```python
 def interleave(x, y):
@@ -79,11 +84,11 @@ This function interleaves the bits of the x and y coordinates to create a unique
 Assigning Locations to Grids Next, we assign locations to grids using the unique values generated in step 1. 
 #### Code: 
 ```python
-  grids = defaultdict(list)
+grids = defaultdict(list)
 
-  for item in items:
-    key = interleave(*item)
-    grids[key].append(item)
+for item in items:
+  key = interleave(*item)
+  grids[key].append(item)
 ```
 #### Explanation: 
 Here, each item's coordinates are passed to the `interleave` function, and the resulting key is used to group the items in a dictionary (`grids`) by their grid cell. Items with the same key are in the same grid cell. 
@@ -91,27 +96,32 @@ Here, each item's coordinates are passed to the `interleave` function, and the r
 Searching for Items in Proximity We now search for items near a specific location by looking at the target grid and its neighboring cells. 
 #### Code: 
 ```python
-  count = 0
+candidates = []
 
-  for offset in range(-25, 26):
-    for offset_y in range(-25, 26):
-
-      neighbor_key = interleave(client_x + offset * 4, client_y + offset_y * 4)
-      items_in_grid = grids[neighbor_key]
+for offset in range(-25, 26):
+  for offset_y in range(-25, 26):
+    neighbor_key = interleave(client_x + offset * 4, client_y + offset_y * 4)
+    candidates.extend(grids.get(neighbor_key, []))
 ```
 #### Explanation: 
-Because the grid size is 3 x 3, adding 4 to the y coordinate of a point will shift it to the grid just above it, and subtracting it will shift it below. Similarly, adding or subtracting from the x coordinate will shift the point to the right or left. If we add 4 to both coordinates, the point will shift to the grid in the upper-right direction, and so on, we can navigate through all 8 neighbors of a grid. Similarly, subtracting/adding 8 (4 x 2) will allow us to navigate to second-level neighbors. 
+Because the grid size is 4 x 4, adding 4 to the y coordinate of a point will shift it to the grid just above it, and subtracting it will shift it below. Similarly, adding or subtracting from the x coordinate will shift the point to the right or left. If we add 4 to both coordinates, the point will shift to the grid in the upper-right direction, and so on, we can navigate through all 8 neighbors of a grid. Similarly, subtracting/adding 8 (4 x 2) will allow us to navigate to second-level neighbors.
 ### Step 4: 
 Filtering Items within the Threshold Finally, we filter the items that are within the desired threshold. 
 #### Code:
 ```python
-  for item in items_in_grid:
-    if euclidean_distance(*item, client_x, client_y) <= threshold:
-      count += 1
+count = 0
+for item in candidates:
+  if euclidean_distance(*item, client_x, client_y) <= threshold:
+    count += 1
 ```
 #### Explanation: 
 Here, the code iterates through the items in the target and neighboring grid cells, using the previously defined Euclidean distance function to determine if they are within the desired threshold. If they are, the count is incremented. 
 ## Time Comparison 
-The naïve linear search took 2.2979 seconds, while the geohash implementation took only 0.0186 seconds, as shown in the output of the code snippets: - Naïve Approach: `Execution time: 2.297866106033325 seconds - Geohashing: `Time taken: 0.018601417541503906 seconds 
+In the original run, the naïve linear search took 2.2979 seconds, while the geohash lookup took 0.0186 seconds:
+
+- Naïve approach: `2.297866106033325 seconds`
+- Geohash lookup: `0.018601417541503906 seconds`
+
+These are lookup times, not the cost of building the grid index. Build the index first, then reuse it for queries.
 ## Conclusion 
 The code snippets above demonstrate the steps involved in geohashing, illustrating how it reduces complexity and improves efficiency for proximity searches. The time comparison shows a substantial improvement over the naive approach, making geohashing a powerful method for handling location-based searches.

@@ -102,8 +102,8 @@ Let's run an experiment to see how `Repeatable Read` works in PostgreSQL.
     ```
     ```sql
     CREATE DATABASE new_db;
-    \q
     ```
+    Exit psql with `\q`, then connect to the new database:
     ```bash
     docker exec -it pg-isolation psql -U postgres -d new_db
     ```

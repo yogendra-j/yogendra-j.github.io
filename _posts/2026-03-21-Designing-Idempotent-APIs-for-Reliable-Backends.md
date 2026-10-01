@@ -24,8 +24,10 @@ If a client retries a request because of a timeout, network flap, or browser ref
 The client sends an **idempotency key** with a request that is expected to have side effects.
 
 ```http
-POST /payments
+POST /payments HTTP/1.1
+Host: api.example.com
 Idempotency-Key: 8d4d7f4b-2d8b-4fa5-b7a4-2d6c7e9b41f0
+
 ```
 
 The server stores:

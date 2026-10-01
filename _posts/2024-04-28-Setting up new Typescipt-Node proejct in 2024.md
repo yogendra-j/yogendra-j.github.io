@@ -99,15 +99,13 @@ Add the following content to the `tsconfig.json` file:
 
 
     "lib": ["es2022", "dom", "dom.iterable"], // omit dom* if not running in browser
+    "types": ["node"],
 
     /* If using tsc */
     "module": "NodeNext", // `moduleResolution: NodeNext` is implied from this option
+    "rootDir": "./src",
     "outDir": "./dist",
     "sourceMap": true,
-
-    /* If using bundler and/or other transpilers */
-    "module": "preserve", // `moduleResolution: Bundler` is implied from this option
-    "noEmit": true,
 
     /* ******************************************************** */
     /* ******************************************************** */
@@ -116,6 +114,8 @@ Add the following content to the `tsconfig.json` file:
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
 ```
+
+This config builds JavaScript with `tsc`. If you use a bundler instead, replace `"module": "NodeNext"` with `"module": "preserve"` and add `"noEmit": true`. Don't combine both versions.
 
 ## Step 5: Setup eslint configuration
 Install eslint extension in vscode.
@@ -189,16 +189,19 @@ export default config;
 
 ## Step 8: Add scripts to `package.json`
 
-```jsonc
+Create `src/main.ts` and an `.env` file before running the dev script. Add `"type": "module"` to `package.json` so Node treats the project as ESM.
+
+```json
 {
+  "type": "module",
   "scripts": {
     "dev": "node --env-file=.env --watch --loader ts-node/esm src/main.ts",
     "build": "tsc",
-    "test": "jest", //or vitest
+    "test": "jest",
     "lint": "eslint .",
     "format:fix": "prettier --write . --ignore-unknown",
     "format:check": "prettier --check . --ignore-unknown",
-    "pre-build-ci": "pnpm lint && pnpm format:check && pnpm test",
+    "pre-build-ci": "pnpm lint && pnpm format:check && pnpm test"
   }
 }
 ```
