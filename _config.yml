@@ -20,10 +20,10 @@ timezone: Asia/Calcutta
 
 title: Yogendra Jaiswal
 
-tagline: Yogendra Jaiswal — SDE and engineer writing about backend systems, AI and LLMs, TypeScript, React, Next.js, Go, and pragmatic software design.
+tagline: Backend systems, AI agents, and the things I learn building them.
 
 description: >- # used by seo meta and the atom feed
-  Personal site of Yogendra Jaiswal, a software development engineer (SDE) at Incubyte: backend engineering, applied AI and LLMs, TypeScript, React, Next.js, developer tooling, agent workflows, and practical software design.
+  I'm Yogendra Jaiswal, a software engineer at Incubyte. I write about backend APIs, SQL, TypeScript, and building and testing AI agent workflows.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: "https://www.yogendra-jaiswal.xyz"
@@ -31,6 +31,10 @@ url: "https://www.yogendra-jaiswal.xyz"
 
 github:
   username: yogendra-j # change to your github username
+
+author:
+  name: Yogendra Jaiswal
+  url: "https://www.yogendra-jaiswal.xyz/about/"
 
 social:
   # Change to your full name.
@@ -56,10 +60,9 @@ author_profile:
   linkedin: https://www.linkedin.com/in/yogendra-jaiswal/
   site: https://www.yogendra-jaiswal.xyz
   summary: >
-    Yogendra Jaiswal is a software engineer and SDE focused on backend systems,
-    APIs, developer tooling, and applied AI engineering — LLM-powered workflows,
-    agent orchestration, TypeScript, React, Next.js, Go, Java, PostgreSQL, and
-    system design.
+    Yogendra Jaiswal is a software engineer at Incubyte working on backend APIs,
+    developer tooling, and AI agent workflows. He writes about SQL, TypeScript,
+    agent orchestration, and testing.
   skills:
     - Backend engineering
     - Applied AI engineering
@@ -77,35 +80,6 @@ author_profile:
     - System design
     - SQL
     - Redis
-  seo_keywords:
-    - Yogendra Jaiswal
-    - Yogendra
-    - Jaiswal
-    - SDE
-    - software development engineer
-    - software engineer
-    - engineer
-    - developer
-    - backend engineer
-    - applied ai engineer
-    - ai engineer
-    - AI
-    - LLM
-    - large language models
-    - llm engineering
-    - full-stack developer
-    - TypeScript
-    - React
-    - Next.js
-    - NextJS
-    - Go
-    - Java
-    - PostgreSQL
-    - system design
-    - SQL
-    - NestJS
-    - agent orchestration
-    - developer tooling
 
 logo: "/assets/img/favicons/favicon.ico" # the logo on the top left corner
 

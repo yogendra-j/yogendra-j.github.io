@@ -1,17 +1,17 @@
 ---
-title: The Verification Loop That Actually Scales with AI Agents
+title: The Verification Loop That Actually Scales with AI Coding Agents
 date: 2026-03-30 00:00:00 +0530
 categories: [ai, developer-tools]
 tags: [ai-coding-agents, testing, e2e, playwright, screenshots, visual-regression, ci, verification, frontend]
 description: >-
-  When agents edit faster than you can click through the UI, batch E2E screenshots and pixel diffs beat browser-in-the-loop checks. Pair with typecheck and unit tests—pixels are not enough.
+  Agents edit faster than I can click through the UI. Here's my Playwright E2E and pixel-diff loop, why I batch the checks, and what screenshots still miss.
 pin: true
 sitemap:
   priority: 0.85
   changefreq: weekly
 image:
   path: /assets/img/posts/verification-loop-og-1200.jpg
-  alt: "Verification loop for AI coding agents — E2E, Playwright, pixel diff, CI."
+  alt: "Verification loop for AI coding agents: E2E, Playwright, pixel diff, CI."
 mermaid: true
 ---
 
@@ -65,6 +65,30 @@ Same seed data, same ports, same ordering every run. That is as **reproducible**
 
 **Why I bother:** no per-step model calls to drive a browser (I still pay **CI** minutes, runner time, and artifact storage—trading token burn for pipeline cost). The suite finishes in minutes while a manual pass through every screen does not scale with how often the agent commits. The result is **binary on pixels**: either the frame matches the baseline or it does not—no “looks fine” from a model that defaults to yes. And it is **scannable**: I triage **visual** impact from the images before I read every line diff. The folder is plain files—diffable, committable, no proprietary viewer.
 
+## A small Playwright starting point
+
+You do not need a separate screenshot tool to try the idea. Playwright has a built-in [screenshot assertion](https://playwright.dev/docs/test-snapshots):
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('home page', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('main')).toBeVisible();
+  await expect(page).toHaveScreenshot('home.png', {
+    fullPage: true,
+    threshold: 0,
+    maxDiffPixels: 0,
+  });
+});
+```
+
+This assumes `baseURL` is configured for your running app. Replace the generic `main` check with an assertion that the content you care about has actually loaded. Seed the data and use the same browser, viewport, and runner for the baseline and later comparisons.
+
+Run `pnpm exec playwright test --update-snapshots` to generate the first baseline, inspect it, and commit it. After that, run `pnpm exec playwright test` without the update flag. Only update a baseline after reviewing an intentional change. Automatically approving new images defeats the point.
+
+`threshold: 0` controls the allowed color difference; `maxDiffPixels: 0` allows no pixels counted as different by the comparator. That is not the same as byte-for-byte PNG equality. Keep the rendering environment fixed.
+
 ## The honest limitation
 
 This catches **rendering** regressions: what landed on screen. It does not catch **logic bugs** that still paint the right picture. Wrong number, right font—screenshots will not save you. You still want unit tests, **typecheck**, **lint**, and whatever else you trust. Extras that barely move pixels—some **accessibility** issues, some empty states—stay outside this layer too.
@@ -97,5 +121,7 @@ Browser tools optimize for *navigating* like a user. Agents doing bulk edits nee
 I spent a long time on the browser-in-the-loop path before this clicked. The shift was not falling out of love with browsers; it was admitting that **throughput** for verification had to match **throughput** for edits.
 
 ---
+
+For the orchestration side, see [how the OpenCode plugin separates planning from edits]({% post_url 2026-03-26-Building-an-Agent-Orchestrator-for-OpenCode %}).
 
 I am curious what **verification loops** others have settled on for **coding agents**—especially ones that keep up when the agent is editing all day. If you have a pattern that survived real use, I would like to hear it.

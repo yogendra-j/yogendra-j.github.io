@@ -42,10 +42,10 @@ refactor: true
 
 <!-- ── Hero ── -->
 <section class="hero-section px-xl-1">
-  <h1 class="hero-headline">Yogendra Jaiswal — backend, AI, and LLM engineering.</h1>
+  <h1 class="hero-headline">Yogendra Jaiswal. Backend, AI, and LLM engineering.</h1>
   <p class="hero-sub">
     SDE at Incubyte. I build reliable APIs, agent workflows, and developer tooling in TypeScript,
-    React, and Next.js — systems that hold up beyond demos, including the unglamorous parts that make them work.
+    React, and Next.js. Systems that hold up beyond demos, including the unglamorous parts that make them work.
   </p>
   <div class="hero-ctas">
     <a href="{{ '/projects/agent-orchestrator/' | relative_url }}" class="hero-btn hero-btn-primary">Agent Orchestrator →</a>
@@ -82,12 +82,16 @@ refactor: true
 
         <div class="col-md-{{ card_body_col }}">
           <div class="card-body d-flex flex-column">
-            <h1 class="card-title my-2 mt-md-0">{{ post.title }}</h1>
+            <h2 class="card-title my-2 mt-md-0">{{ post.title }}</h2>
 
             <div class="card-text content mt-0 mb-3">
               <p>
-                {% include no-linenos.html content=post.content %}
-                {{ content | markdownify | strip_html | truncate: 200 | escape }}
+                {% if post.description %}
+                  {{ post.description | escape }}
+                {% else %}
+                  {% include no-linenos.html content=post.content %}
+                  {{ content | markdownify | strip_html | truncate: 200 | escape }}
+                {% endif %}
               </p>
             </div>
 

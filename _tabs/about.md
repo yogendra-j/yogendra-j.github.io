@@ -1,7 +1,7 @@
 ---
 # the default layout is 'page'
 title: About
-description: Learn about Yogendra Jaiswal, an SDE and software engineer at Incubyte — backend systems, applied AI and LLMs, TypeScript, React, Next.js, Go, SQL, and system design.
+description: I'm Yogendra Jaiswal, a software engineer at Incubyte. My work and writing cover backend APIs, SQL, TypeScript, and AI agent workflows.
 image: /assets/img/profile.jpg
 icon: fas fa-info-circle
 order: 3
@@ -23,11 +23,14 @@ This site is both a technical blog and a compact portfolio: a place to document 
 - PostgreSQL, SQL behavior, and data consistency
 - System design, performance, and reliability
 
-## What You Will Find Here
+## Where to start
 
-- Write-ups on engineering topics I care about, such as SQL isolation levels, TypeScript API design, agent orchestration, and geospatial lookup strategies
-- Public projects and experiments from my GitHub profile
-- Notes that reflect how I approach software design, debugging, and tradeoffs in real systems
+The code and examples are more useful than a list of skills:
+
+- [PostgreSQL isolation levels vs MySQL]({% post_url 2024-05-26- Database Isolation Levels: MySQL vs PgSQL %}): what concurrent transactions actually see, with a two-terminal example.
+- [Designing idempotent APIs]({% post_url 2026-03-21-Designing-Idempotent-APIs-for-Reliable-Backends %}): retries, lost responses, and what needs to be stored.
+- [The verification loop for AI coding agents]({% post_url 2026-03-30-the-verification-loop-that-actually-scales %}): the screenshot workflow I use, and what it still misses.
+- [Projects]({{ '/projects/' | relative_url }}): public code and experiments.
 
 ## Current Snapshot
 

@@ -1,13 +1,15 @@
 ---
 layout: page
 title: "Agent Orchestrator for OpenCode"
-description: "Engineering a persistent, permission-bounded multi-agent system for Claude Code — with enforced mode separation, parallel planning, and context pressure tracking."
+description: "An OpenCode agent orchestrator with persistent Claude Code sessions, read-only exploration, and parallel planning. The design and its tradeoffs."
 permalink: /projects/agent-orchestrator/
 ---
 
-An OpenCode plugin that turns a single Claude Code session into a structured engineering org: a CTO agent that owns decomposition and final judgment, named engineer agents with persistent state, an architect that synthesizes competing plans, and permission boundaries enforced in code — not just in prompts.
+An OpenCode plugin that turns a single Claude Code session into a structured engineering org: a CTO agent that owns decomposition and final judgment, named engineer agents with persistent state, an architect that synthesizes competing plans, and permission boundaries enforced in code, not just in prompts.
 
-**GitHub:** [yogendra-j/claude-code-opencode](https://github.com/yogendra-j/claude-code-opencode) &nbsp;·&nbsp; **Stack:** TypeScript, JavaScript, Claude Agent SDK, OpenCode plugin API
+**Project:** `claude-opencode-subagents` &nbsp;·&nbsp; **Stack:** TypeScript, JavaScript, Claude Agent SDK, OpenCode plugin API
+
+The source repository is not currently public. This page covers the design; the [companion post]({% post_url 2026-03-26-Building-an-Agent-Orchestrator-for-OpenCode %}) goes into the mechanisms and tradeoffs.
 
 ---
 

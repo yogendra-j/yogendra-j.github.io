@@ -3,7 +3,7 @@ title: Building a Real Agent Orchestrator for OpenCode
 date: 2026-03-26 00:00:00 +0530
 categories: [ai, developer-tools]
 tags: [opencode, claude, agents, orchestration, typescript]
-description: Lessons from `claude-opencode-subagents` on building persistent agents, safe delegation, and orchestration that holds up beyond demos.
+description: How an OpenCode plugin coordinates Claude Code agents with persistent sessions, read-only exploration, and parallel planning before edits.
 pin: true
 ---
 
@@ -14,6 +14,8 @@ The failure mode is usually boring. No ownership. No memory. No safety boundary.
 I spent some time reading through `claude-opencode-subagents`, an OpenCode plugin that orchestrates Claude Code sessions. What makes it interesting is not that it adds more agents. Plenty of projects do that. What makes it good is that it adds the constraints a real engineering workflow needs.
 
 That is the difference between a toy and a tool.
+
+For the shorter version, see the [project write-up]({{ '/projects/agent-orchestrator/' | relative_url }}). The `claude-opencode-subagents` source repository is not currently public.
 
 ## The shape of the system
 
@@ -210,3 +212,5 @@ That is what separates engineering writing from AI-flavored summarization.
 The interesting thing about `claude-opencode-subagents` is not that it uses many agents. It is that it understands the unglamorous parts of orchestration: ownership, continuity, permission boundaries, recovery, and review.
 
 That is where serious tooling lives.
+
+The next problem is checking what those agents changed. I wrote about that in [the verification loop for AI coding agents]({% post_url 2026-03-30-the-verification-loop-that-actually-scales %}).

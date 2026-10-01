@@ -1,14 +1,23 @@
 featured_repositories:
+  - name: claude-code-opencode
+    url: https://github.com/yogendra-j/claude-code-opencode
+    language: JavaScript
+    summary: A command-line bridge to OpenCode. Create a session, send a follow-up prompt, stream events, and read the final result.
+    highlights:
+      - Session creation and follow-up prompts through the OpenCode API
+      - Streams text, tool calls, and child-session events over SSE
+      - Prints a JSON result for use by another tool
+
   - name: pdf-generator
     url: https://github.com/yogendra-j/pdf-generator
     live_url: https://pdf-generator-lemon.vercel.app
     language: TypeScript
     updated_at: 2026-01-16
-    summary: A production-style PDF generation app with a live deployment.
+    summary: A TypeScript PDF generation app with a live demo.
     highlights:
       - Full-stack TypeScript implementation
       - Real deployed product surface
-      - Useful portfolio piece for API and document workflows
+      - API and document generation workflows
 
   - name: small-experiments
     url: https://github.com/yogendra-j/small-experiments
@@ -18,7 +27,7 @@ featured_repositories:
     highlights:
       - Practical Go experiments
       - Algorithms and tooling exploration
-      - Good signal for engineering curiosity
+      - Includes the code behind my geohashing post
 
   - name: node-typescipt-starter
     url: https://github.com/yogendra-j/node-typescipt-starter
@@ -27,8 +36,8 @@ featured_repositories:
     summary: Starter template for a modern TypeScript Node.js codebase.
     highlights:
       - Tooling and project setup focus
-      - Useful for interview discussion around standards
-      - Complements the matching blog post
+      - pnpm, ts-node, ESLint, and Prettier setup
+      - Code behind my TypeScript Node.js setup post
 
 
 skill_groups:
