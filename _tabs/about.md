@@ -9,8 +9,6 @@ order: 3
 
 I'm a software engineer at [Incubyte](https://incubyte.co), with about five years in industry. I started at Amazon as an SDE. For the last two years I've been a core engineer on an enterprise AI automation platform, where I work across the workflow engine, its queues and schedulers, LLM integrations, and the product UI on top.
 
-I trained as a civil engineer (B.Tech, IIT Gandhinagar) and a structural engineer (M.Tech, IIT Guwahati) before moving to software. The habit that carried over is asking how a thing fails before asking how it works.
-
 ## What I'm good at
 
 Backend systems
@@ -24,13 +22,6 @@ Product engineering
 
 Engineering practice
 : Test-first bug fixes, modules with in-memory test doubles, design docs before contested changes. I also interview engineering candidates at Incubyte.
-
-
-## How I work
-
-A change is done when I have seen it work on the running system. Passing tests are where that check starts.
-
-If an agent or a service must never do something, I make the tool or the type refuse it, rather than writing it down as a rule.
 
 ## Start here
 

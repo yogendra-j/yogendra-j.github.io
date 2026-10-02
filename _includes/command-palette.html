@@ -1,0 +1,19 @@
+<dialog id="command-palette" aria-labelledby="palette-title" data-index-url="{{ '/assets/js/data/search.json' | relative_url }}">
+  <header class="palette-header"><h2 id="palette-title">Telescope / search portfolio</h2><button type="button" class="palette-close" aria-label="Close search">Esc</button></header>
+  <div class="palette-query"><i class="fas fa-search" aria-hidden="true"></i><input id="palette-input" type="search" aria-label="Search portfolio" placeholder="Search portfolio…" autocomplete="off" spellcheck="false"></div>
+  <p class="palette-status" role="status"></p>
+  <nav class="palette-results" aria-label="Search results">
+    <a href="{{ '/' | relative_url }}" data-keywords="home portfolio Yogendra Jaiswal"><span>Home</span><small>home.md</small></a>
+    {% for tab in site.tabs %}
+      {% unless tab.hidden %}<a href="{{ tab.url | relative_url }}" data-keywords="{{ tab.title | escape }} {{ tab.description | escape }}"><span>{{ tab.title }}</span><small>{{ tab.title | downcase }}.md</small></a>{% endunless %}
+    {% endfor %}
+    {% for item in site.data.work.selected %}
+      <a href="{{ item.url | relative_url }}" data-keywords="{{ item.title | escape }} {{ item.summary | escape }} {{ item.facts | join: ' ' | escape }}"><span>{{ item.title }}</span><small>project</small></a>
+    {% endfor %}
+    {% for post in site.posts %}
+      {% unless post.hidden %}<a href="{{ post.url | relative_url }}" data-keywords="{{ post.title | escape }} {{ post.description | escape }} {{ post.tags | join: ' ' | escape }}"><span>{{ post.title }}</span><small>{{ post.date | date: '%b %Y' }}</small></a>{% endunless %}
+    {% endfor %}
+  </nav>
+  <p class="palette-empty" hidden>No matching results.</p>
+  <footer class="palette-help">Ctrl K to search <span>↑ ↓ to navigate · Enter to open · Esc to close</span></footer>
+</dialog>

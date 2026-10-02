@@ -9,9 +9,18 @@ layout: compress
 {% endif %}
 <html lang="{{ site.alt_lang | default: site.lang }}" {{ prefer_mode }}>
   {% include head.html %}
-  <body>
+  <body{% if page.layout == 'home' %} class="portfolio-home"{% endif %}>
     <a class="skip-link" href="#main-content">Skip to content</a>
     {% include topbar.html lang=lang %}
+    <aside class="workspace-tree" aria-label="Portfolio explorer">
+      <p class="tree-heading">EXPLORER</p>
+      <p class="tree-root"><span aria-hidden="true">⌄</span><i class="far fa-folder-open" aria-hidden="true"></i> portfolio/</p>
+      <nav class="tree-files" aria-label="Primary navigation">{% include workspace-nav.html %}</nav>
+      <div class="tree-directories" aria-hidden="true"><span>› &nbsp; assets/</span><span>› &nbsp; data/</span><span>› &nbsp; components/</span><span>› &nbsp; .config/</span></div>
+      <div class="tree-footer"><span>© {{ 'now' | date: '%Y' }} {{ site.social.name }}</span><a href="{{ '/feed.xml' | relative_url }}">RSS feed ↗</a></div>
+    </aside>
+    <div class="workspace-buffer">
+      <nav class="buffer-tabs" aria-label="Buffers">{% include workspace-nav.html tabs=true %}</nav>
     <div id="main-wrapper" class="d-flex justify-content-center">
       <div class="container d-flex flex-column">
         <div class="row flex-grow-1">
@@ -33,6 +42,7 @@ layout: compress
             </aside>
           {% endif %}
         </div>
+        {% if layout.tail_includes %}
         <div class="row">
           <div id="tail-wrapper" class="col-12{% if layout.panel_includes %} col-xl-9{% endif %}">
             {% for _include in layout.tail_includes %}
@@ -41,7 +51,7 @@ layout: compress
             {% endfor %}
           </div>
         </div>
-        {% include_cached search-results.html lang=lang %}
+        {% endif %}
       </div>
       <aside aria-label="Scroll to Top">
         <button id="back-to-top" type="button" class="btn btn-lg btn-box-shadow" aria-label="Back to top">
@@ -49,20 +59,20 @@ layout: compress
         </button>
       </aside>
     </div>
-    <footer class="site-footer">
-      <span>© {{ 'now' | date: '%Y' }} {{ site.social.name }}</span>
-      <nav aria-label="Social links">
-        <a href="{{ site.author_profile.github }}">GitHub</a>
-        <a href="{{ site.author_profile.linkedin }}">LinkedIn</a>
-        <a href="mailto:{{ site.social.email }}">Email</a>
-        <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
-      </nav>
+    </div>
+    {% assign buffer_name = page.url | remove_first: '/' | remove: '.html' %}
+    {% if page.layout == 'home' %}{% assign buffer_name = 'home' %}{% endif %}
+    <footer class="workspace-status" aria-label="Workspace status">
+      <span class="status-normal">NORMAL</span><span class="status-branch"><i class="fas fa-code-branch" aria-hidden="true"></i> main</span>
+      <span class="status-path">~/portfolio/{{ buffer_name | split: '/' | join: '/' }}.md</span>
+      <span class="status-format">UTF-8 &nbsp; Markdown</span><a class="status-rss" href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <button type="button" class="palette-trigger status-search"><kbd>Ctrl K</kbd><span>Command palette</span></button>
     </footer>
+    {% include command-palette.html %}
     {% if site.pwa.enabled %}
       {% include_cached notification.html lang=lang %}
     {% endif %}
     {% include js-selector.html %}
     {% if page.mermaid %}{% include mermaid.html %}{% endif %}
-    {% include_cached search-loader.html %}
   </body>
 </html>

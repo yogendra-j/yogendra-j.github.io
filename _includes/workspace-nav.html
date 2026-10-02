@@ -1,0 +1,14 @@
+{% assign home_current = nil %}
+{% if page.layout == 'home' %}{% assign home_current = 'page' %}{% endif %}
+<a href="{{ '/' | relative_url }}" {% if home_current %}aria-current="{{ home_current }}"{% endif %}><i class="fas fa-house" aria-hidden="true"></i><span>home.md</span>{% if include.tabs %}<span class="buffer-close" aria-hidden="true">×</span>{% endif %}</a>
+{% for tab in site.tabs %}
+  {% unless tab.hidden %}
+    {% assign current = nil %}
+    {% if page.url == tab.url %}
+      {% assign current = 'page' %}
+    {% elsif page.url contains tab.url or page.layout == 'post' and tab.url == '/writing/' %}
+      {% assign current = 'true' %}
+    {% endif %}
+    <a href="{{ tab.url | relative_url }}" {% if current %}aria-current="{{ current }}"{% endif %}><i class="far fa-file-lines" aria-hidden="true"></i><span>{{ tab.title | downcase }}.md</span>{% if include.tabs %}<span class="buffer-close" aria-hidden="true">×</span>{% endif %}</a>
+  {% endunless %}
+{% endfor %}

@@ -1,27 +1,12 @@
 <header id="topbar-wrapper" class="site-header">
   <div id="topbar">
-    <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="Home">Yogendra Jaiswal</a>
-    <nav class="site-nav" aria-label="Primary navigation">
-      <a href="{{ '/' | relative_url }}" {% if page.layout == 'home' %}aria-current="page"{% endif %}>Home</a>
-      {% for tab in site.tabs %}
-        {% unless tab.hidden %}
-          {% if page.url == tab.url %}
-            {% assign current = 'page' %}
-          {% elsif page.url contains tab.url or page.layout == 'post' and tab.url == '/writing/' %}
-            {% assign current = 'true' %}
-          {% else %}
-            {% assign current = nil %}
-          {% endif %}
-          <a href="{{ tab.url | relative_url }}" {% if current %}aria-current="{{ current }}"{% endif %}>{{ tab.title }}</a>
-        {% endunless %}
-      {% endfor %}
+    <a class="site-brand" href="{{ '/' | relative_url }}"><span class="brand-mark" aria-hidden="true">YJ</span><span>Yogendra Jaiswal</span></a>
+    <span class="workspace-path">~/portfolio</span>
+    <button type="button" class="palette-trigger" aria-label="Search site" aria-keyshortcuts="Control+K Meta+K"><kbd>Ctrl K</kbd><span>Search anything…</span><i class="fas fa-search" aria-hidden="true"></i></button>
+    <nav class="topbar-socials" aria-label="Social links">
+      <a href="{{ site.author_profile.github }}" aria-label="GitHub"><i class="fab fa-github" aria-hidden="true"></i></a>
+      <a href="{{ site.author_profile.linkedin }}" aria-label="LinkedIn"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
+      <a href="mailto:{{ site.social.email }}" aria-label="Email"><i class="far fa-envelope" aria-hidden="true"></i></a>
     </nav>
-    <button type="button" id="search-trigger" class="btn" aria-label="Search site"><i class="fas fa-search" aria-hidden="true"></i></button>
-    <search class="align-items-center">
-      <span class="search-prompt" aria-hidden="true">&gt;</span>
-      <input class="form-control" id="search-input" type="search" aria-label="Search site" aria-keyshortcuts="Control+K" autocomplete="off" placeholder="search">
-      <kbd class="search-key" aria-hidden="true">Ctrl K</kbd>
-    </search>
-    <button type="button" class="btn" id="search-cancel">Close</button>
   </div>
 </header>

@@ -1,84 +1,41 @@
 ---
 layout: default
 ---
-{% include lang.html %}
-
-{% assign pinned = site.posts | where: 'pin', 'true' %}
-{% assign default = site.posts | where_exp: 'item', 'item.pin != true and item.hidden != true' %}
-{% assign posts = '' | split: '' %}
-
-{% assign offset = paginator.page | minus: 1 | times: paginator.per_page %}
-{% assign pinned_num = pinned.size | minus: offset %}
-{% if pinned_num > 0 %}
-  {% for i in (offset..pinned.size) limit: pinned_num %}
-    {% assign posts = posts | push: pinned[i] %}
-  {% endfor %}
-{% else %}
-  {% assign pinned_num = 0 %}
-{% endif %}
-
-{% assign default_beg = offset | minus: pinned.size %}
-{% if default_beg < 0 %}
-  {% assign default_beg = 0 %}
-{% endif %}
-{% assign default_num = paginator.posts | size | minus: pinned_num %}
-{% assign default_end = default_beg | plus: default_num | minus: 1 %}
-{% if default_num > 0 %}
-  {% for i in (default_beg..default_end) %}
-    {% assign posts = posts | push: default[i] %}
-  {% endfor %}
-{% endif %}
-
+{% assign posts = site.posts | where_exp: 'post', 'post.hidden != true' %}
 <div class="home">
   {% if paginator.page == 1 %}
     <section class="intro" aria-labelledby="intro-title">
-      <div class="intro-id">
-        <img class="avatar" src="{{ site.avatar | relative_url }}" alt="Photo of Yogendra Jaiswal" width="64" height="64" fetchpriority="high">
-        <div>
-          <h1 id="intro-title">Yogendra Jaiswal</h1>
-          <p class="kicker">Software engineer at <a href="{{ site.author_profile.company_url }}">{{ site.author_profile.company }}</a> · previously Amazon</p>
-        </div>
+      <div class="intro-copy">
+        <p class="intro-greeting">// Hi, I’m</p>
+        <h1 id="intro-title">Yogendra Jaiswal</h1>
+        <p class="intro-role">Software Engineer at <a href="{{ site.author_profile.company_url }}">{{ site.author_profile.company }}</a></p>
+        <p class="intro-body">I build AI-powered products, backend systems, automation tools, and reliable software that solves real problems.</p>
+        <p class="intro-secondary">I enjoy turning complex ideas into simple, scalable systems.</p>
+        <nav class="intro-links" aria-label="Connect">
+          <a class="primary" href="{{ site.author_profile.github }}"><i class="fab fa-github" aria-hidden="true"></i> GitHub <span aria-hidden="true">→</span></a>
+          <a href="{{ site.author_profile.linkedin }}"><i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn</a>
+          <a href="{{ '/writing/' | relative_url }}"><i class="far fa-file-lines" aria-hidden="true"></i> Writing</a>
+          <a href="mailto:{{ site.social.email }}"><i class="far fa-envelope" aria-hidden="true"></i> Email</a>
+        </nav>
       </div>
-      <p class="lead">I build AI workflow platforms and the reliability work underneath them.</p>
-      <p class="intro-body">My work sits where LLM features meet ordinary backend problems: queues, retries, rate limits, state, and tests. I write about what breaks and how I fix it.</p>
-      <p class="intro-links">
-        <a href="{{ site.author_profile.github }}">GitHub</a>
-        <a href="{{ site.author_profile.linkedin }}">LinkedIn</a>
-        <a href="mailto:{{ site.social.email }}">Email</a>
-      </p>
+      <img class="portrait" src="{{ site.avatar | relative_url }}" alt="Yogendra Jaiswal" width="238" height="302" fetchpriority="high">
     </section>
-
-    <section class="block" aria-labelledby="work-title">
-      <h2 id="work-title" class="label">Selected work</h2>
-      <ol class="work-list">
-        {% for item in site.data.work.selected %}
-          <li>
-            <a class="work-card" href="{{ item.url | relative_url }}">
-              <span class="work-meta">{{ item.meta }}</span>
-              <span class="work-title">{{ item.title }}</span>
-              <span class="work-summary">{{ item.summary }}</span>
-              <span class="work-facts">{{ item.facts | join: ' · ' }}</span>
-            </a>
-          </li>
-        {% endfor %}
-      </ol>
+    <section class="home-section" aria-labelledby="work-title">
+      <div class="section-heading"><h2 id="work-title"><i class="fas fa-cube" aria-hidden="true"></i> Featured Projects</h2><a href="{{ '/projects/' | relative_url }}">View all projects <span aria-hidden="true">→</span></a></div>
+      {% include work-cards.html %}
     </section>
   {% endif %}
-
-  <section class="block" aria-labelledby="writing-title">
-    <h2 id="writing-title" class="label">Writing</h2>
-    <ol class="post-index">
-      {% for post in posts %}
-        <li>
-          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %Y' }}</time>
-          <div>
-            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-            <p>{{ post.description | default: post.excerpt | strip_html | escape }}</p>
-          </div>
-        </li>
+  <section class="home-section" aria-labelledby="writing-title">
+    <div class="section-heading"><h2 id="writing-title"><i class="far fa-file-lines" aria-hidden="true"></i> Latest Writing</h2><a href="{{ '/writing/' | relative_url }}">View all writing <span aria-hidden="true">→</span></a></div>
+    <ol class="writing-cards">
+      {% for post in posts limit: 5 %}
+        <li><a class="writing-card" href="{{ post.url | relative_url }}">
+          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %d, %Y' }}</time>
+          <span class="writing-title">{{ post.title }}</span>
+          <span class="writing-summary">{{ post.description | strip_html | truncate: 110 | escape }}</span>
+          <span class="writing-tags">{% for tag in post.tags limit: 2 %}<span>{{ tag }}</span>{% endfor %}</span>
+        </a></li>
       {% endfor %}
     </ol>
-    <p class="more"><a href="{{ '/writing/' | relative_url }}">All writing <span aria-hidden="true">→</span></a></p>
-    {% if paginator.total_pages > 1 %}{% include post-paginator.html %}{% endif %}
   </section>
 </div>

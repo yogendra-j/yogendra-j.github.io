@@ -5,18 +5,7 @@ icon: fas fa-diagram-project
 order: 1
 ---
 
-<ol class="work-list">
-  {% for item in site.data.work.selected %}
-    <li>
-      <a class="work-card" href="{{ item.url | relative_url }}">
-        <span class="work-meta">{{ item.meta }}</span>
-        <span class="work-title">{{ item.title }}</span>
-        <span class="work-summary">{{ item.summary }}</span>
-        <span class="work-facts">{{ item.facts | join: ' · ' }}</span>
-      </a>
-    </li>
-  {% endfor %}
-</ol>
+{% include work-cards.html metadata=true %}
 
 ## Open source
 
