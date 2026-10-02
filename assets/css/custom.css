@@ -35,6 +35,7 @@ html[data-mode="dark"] {
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   color-scheme: dark;
 }
+:where(*) { scrollbar-width: thin; scrollbar-color: #2c3b4b transparent; }
 body { background: var(--main-bg); color: var(--text-color); font: 1rem/1.7 var(--sans); -webkit-font-smoothing: antialiased; }
 h1, h2, h3, h4, h5 { color: var(--heading-color); font-family: var(--sans); letter-spacing: -.02em; }
 a { color: var(--link-color); transition: color .15s; }
