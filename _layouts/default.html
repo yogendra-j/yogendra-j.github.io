@@ -16,7 +16,6 @@ layout: compress
       <p class="tree-heading">EXPLORER</p>
       <button type="button" class="tree-folder tree-root" aria-expanded="true" aria-controls="tree-files"><i class="fas fa-chevron-down" aria-hidden="true"></i><i class="far fa-folder-open" aria-hidden="true"></i><span>portfolio/</span></button>
       <nav id="tree-files" class="tree-files" aria-label="Primary navigation">{% include workspace-nav.html %}</nav>
-      <div class="tree-footer"><span>© {{ 'now' | date: '%Y' }} {{ site.social.name }}</span><a href="{{ '/feed.xml' | relative_url }}">RSS feed ↗</a></div>
     </aside>
     <div class="workspace-buffer">
     <div id="main-wrapper" class="d-flex justify-content-center">
@@ -61,12 +60,19 @@ layout: compress
     {% assign buffer_name = page.url | remove_first: '/' | remove: '.html' %}
     {% if page.layout == 'home' %}{% assign buffer_name = 'home' %}{% endif %}
     <footer class="workspace-status" aria-label="Workspace status">
-      <span class="status-normal">NORMAL</span><span class="status-branch"><i class="fas fa-code-branch" aria-hidden="true"></i> main</span>
-      <span class="status-path">~/portfolio/{{ buffer_name | split: '/' | join: '/' }}.md</span>
-      <span class="status-format">UTF-8 &nbsp; Markdown</span><a class="status-rss" href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <span class="status-normal" data-mode="NORMAL">NORMAL</span>
+      <a class="status-branch" href="https://github.com/{{ site.github.username }}/{{ site.github.username }}.github.io" aria-label="Site source on GitHub"><i class="fas fa-code-branch" aria-hidden="true"></i> main</a>
+      <button type="button" class="status-path" title="Copy page link">~/portfolio/{{ buffer_name | split: '/' | join: '/' }}.md</button>
+      <span class="status-copied" role="status"></span>
+      <span class="status-scroll" title="Scroll position">Top</span>
+      {% if page.layout == 'post' %}{% assign read_time = page.content | strip_html | number_of_words: 'auto' | divided_by: 180 | at_least: 1 %}<span class="status-read">{{ read_time }} min</span>{% endif %}
+      <span class="status-copyright">© {{ 'now' | date: '%Y' }} {{ site.social.name }}</span>
+      <a class="status-rss" href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <button type="button" class="status-keys" aria-haspopup="dialog" aria-keyshortcuts="?">? keys</button>
       <button type="button" class="palette-trigger status-search"><kbd>Ctrl K</kbd><span>Command palette</span></button>
     </footer>
     {% include command-palette.html %}
+    {% include key-help.html %}
     {% if site.pwa.enabled %}
       {% include_cached notification.html lang=lang %}
     {% endif %}
