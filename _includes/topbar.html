@@ -1,0 +1,27 @@
+<header id="topbar-wrapper" class="site-header">
+  <div id="topbar">
+    <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="Yogendra Jaiswal, home"><span aria-hidden="true">&gt;_</span></a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="{{ '/' | relative_url }}" {% if page.layout == 'home' %}aria-current="page"{% endif %}>Home</a>
+      {% for tab in site.tabs %}
+        {% unless tab.hidden %}
+          {% if page.url == tab.url %}
+            {% assign current = 'page' %}
+          {% elsif page.url contains tab.url or page.layout == 'post' and tab.url == '/writing/' %}
+            {% assign current = 'true' %}
+          {% else %}
+            {% assign current = nil %}
+          {% endif %}
+          <a href="{{ tab.url | relative_url }}" {% if current %}aria-current="{{ current }}"{% endif %}>{{ tab.title }}</a>
+        {% endunless %}
+      {% endfor %}
+    </nav>
+    <button type="button" id="search-trigger" class="btn" aria-label="Search site"><i class="fas fa-search" aria-hidden="true"></i></button>
+    <search class="align-items-center">
+      <span class="search-prompt" aria-hidden="true">&gt;</span>
+      <input class="form-control" id="search-input" type="search" aria-label="Search site" aria-keyshortcuts="Control+K" autocomplete="off" placeholder="search">
+      <kbd class="search-key" aria-hidden="true">Ctrl K</kbd>
+    </search>
+    <button type="button" class="btn" id="search-cancel">Close</button>
+  </div>
+</header>

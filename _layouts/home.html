@@ -1,20 +1,14 @@
 ---
 layout: default
-refactor: true
 ---
-
 {% include lang.html %}
 
 {% assign pinned = site.posts | where: 'pin', 'true' %}
 {% assign default = site.posts | where_exp: 'item', 'item.pin != true and item.hidden != true' %}
-
 {% assign posts = '' | split: '' %}
-
-<!-- Get pinned posts -->
 
 {% assign offset = paginator.page | minus: 1 | times: paginator.per_page %}
 {% assign pinned_num = pinned.size | minus: offset %}
-
 {% if pinned_num > 0 %}
   {% for i in (offset..pinned.size) limit: pinned_num %}
     {% assign posts = posts | push: pinned[i] %}
@@ -23,113 +17,75 @@ refactor: true
   {% assign pinned_num = 0 %}
 {% endif %}
 
-<!-- Get default posts -->
-
 {% assign default_beg = offset | minus: pinned.size %}
-
 {% if default_beg < 0 %}
   {% assign default_beg = 0 %}
 {% endif %}
-
 {% assign default_num = paginator.posts | size | minus: pinned_num %}
 {% assign default_end = default_beg | plus: default_num | minus: 1 %}
-
 {% if default_num > 0 %}
   {% for i in (default_beg..default_end) %}
     {% assign posts = posts | push: default[i] %}
   {% endfor %}
 {% endif %}
 
-<!-- ── Hero ── -->
-<section class="hero-section px-xl-1">
-  <h1 class="hero-headline">Yogendra Jaiswal. Backend, AI, and LLM engineering.</h1>
-  <p class="hero-sub">
-    SDE at Incubyte. I build reliable APIs, agent workflows, and developer tooling in TypeScript,
-    React, and Next.js. Systems that hold up beyond demos, including the unglamorous parts that make them work.
-  </p>
-  <div class="hero-ctas">
-    <a href="{{ '/projects/agent-orchestrator/' | relative_url }}" class="hero-btn hero-btn-primary">Agent Orchestrator →</a>
-    <a href="{{ '/projects/' | relative_url }}" class="hero-btn hero-btn-secondary">View Projects</a>
+<div class="console{% if paginator.page == 1 %} has-profile{% endif %}">
+  {% if paginator.page == 1 %}
+    <section class="readme readme-intro" aria-labelledby="intro-title">
+      <h1 id="intro-title" class="ln"><span class="md" aria-hidden="true"># </span>Yogendra Jaiswal</h1>
+      <p class="ln comment"><span aria-hidden="true">// </span>Software Engineer at <a href="{{ site.author_profile.company_url }}">{{ site.author_profile.company }}</a></p>
+      <p class="ln"><span class="key">focus</span> = [backend systems, applied AI, developer tooling]</p>
+      <p class="ln muted">I build backend APIs, AI agent workflows, and developer tools, and write down what I learn along the way.</p>
+    </section>
+
+    <aside class="profile-panel" aria-label="Profile">
+      <p class="panel-title" aria-hidden="true">profile.jpg</p>
+      <img src="{{ site.avatar | relative_url }}" alt="Yogendra Jaiswal" width="320" height="384" fetchpriority="high">
+      <ul class="profile-links">
+        <li><a href="{{ site.author_profile.github }}">{{ site.author_profile.github | remove: 'https://' | split: '/' | join: '/' }}</a></li>
+        <li><a href="{{ site.author_profile.linkedin }}">{{ site.author_profile.linkedin | remove: 'https://' | remove: 'www.' | split: '/' | join: '/' }}</a></li>
+        <li><a href="mailto:{{ site.social.email }}">{{ site.social.email }}</a></li>
+      </ul>
+      <a class="say-hello" href="mailto:{{ site.social.email }}">Say hello</a>
+    </aside>
+  {% endif %}
+
+  <div class="readme readme-body">
+    {% if paginator.page == 1 %}
+      <section aria-labelledby="work-title">
+        <h2 id="work-title" class="ln"><span class="md" aria-hidden="true">## </span>Selected work</h2>
+        <ol class="md-list">
+          <li>
+            <p class="ln item-title"><a href="{{ '/projects/agent-orchestrator/' | relative_url }}">Agent Orchestrator for OpenCode</a> <span class="badge-featured">Featured</span></p>
+            <p class="ln item-desc">Persistent agent identities, parallel planning, and permission boundaries enforced at the tool layer.</p>
+            <ul class="ln chips" aria-label="Stack">
+              <li>TypeScript</li><li>JavaScript</li><li>Claude Agent SDK</li><li>OpenCode</li>
+            </ul>
+          </li>
+          {% for repo in site.data.showcase.featured_repositories limit: 2 %}
+            <li>
+              <p class="ln item-title"><a href="{{ repo.url }}">{{ repo.name }}</a></p>
+              <p class="ln item-desc">{{ repo.summary }}</p>
+              <ul class="ln chips" aria-label="Stack"><li>{{ repo.language }}</li></ul>
+            </li>
+          {% endfor %}
+        </ol>
+        <p class="ln more"><a href="{{ '/projects/' | relative_url }}">all projects <span aria-hidden="true">→</span></a></p>
+      </section>
+    {% endif %}
+
+    <section aria-labelledby="writing-title">
+      <h2 id="writing-title" class="ln"><span class="md" aria-hidden="true">## </span>Writing</h2>
+      <ol class="md-list" start="{{ offset | plus: 1 }}">
+        {% for post in posts %}
+          <li>
+            <p class="ln item-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></p>
+            <p class="ln item-desc"><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y-%m-%d' }}</time> {{ post.description | default: post.excerpt | strip_html | truncate: 140 | escape }}</p>
+          </li>
+        {% endfor %}
+      </ol>
+      <p class="ln more"><a href="{{ '/writing/' | relative_url }}">all writing <span aria-hidden="true">→</span></a></p>
+      {% if paginator.total_pages > 1 %}{% include post-paginator.html %}{% endif %}
+    </section>
   </div>
-</section>
-
-<div id="post-list" class="flex-grow-1 px-xl-1">
-  {% for post in posts %}
-    <article class="card-wrapper card">
-      <a href="{{ post.url | relative_url }}" class="post-preview row g-0 flex-md-row-reverse">
-        {% assign card_body_col = '12' %}
-
-        {% if post.image %}
-          {% assign src = post.image.path | default: post.image %}
-          {% unless src contains '//' %}
-            {% assign src = post.img_path | append: '/' | append: src | replace: '//', '/' %}
-          {% endunless %}
-
-          {% assign alt = post.image.alt | xml_escape | default: 'Preview Image' %}
-
-          {% assign lqip = null %}
-
-          {% if post.image.lqip %}
-            {% capture lqip %}lqip="{{ post.image.lqip }}"{% endcapture %}
-          {% endif %}
-
-          <div class="col-md-5">
-            <img src="{{ src }}" alt="{{ alt }}" {{ lqip }}>
-          </div>
-
-          {% assign card_body_col = '7' %}
-        {% endif %}
-
-        <div class="col-md-{{ card_body_col }}">
-          <div class="card-body d-flex flex-column">
-            <h2 class="card-title my-2 mt-md-0">{{ post.title }}</h2>
-
-            <div class="card-text content mt-0 mb-3">
-              <p>
-                {% if post.description %}
-                  {{ post.description | escape }}
-                {% else %}
-                  {% include no-linenos.html content=post.content %}
-                  {{ content | markdownify | strip_html | truncate: 200 | escape }}
-                {% endif %}
-              </p>
-            </div>
-
-            <div class="post-meta flex-grow-1 d-flex align-items-end">
-              <div class="me-auto">
-                <!-- posted date -->
-                <i class="far fa-calendar fa-fw me-1"></i>
-                {% include datetime.html date=post.date lang=lang %}
-
-                <!-- categories -->
-                {% if post.categories.size > 0 %}
-                  <i class="far fa-folder-open fa-fw me-1"></i>
-                  <span class="categories">
-                    {% for category in post.categories %}
-                      {{ category }}
-                      {%- unless forloop.last -%},{%- endunless -%}
-                    {% endfor %}
-                  </span>
-                {% endif %}
-              </div>
-
-              {% if post.pin %}
-                <div class="pin ms-1">
-                  <i class="fas fa-thumbtack fa-fw"></i>
-                  <span>{{ site.data.locales[lang].post.pin_prompt }}</span>
-                </div>
-              {% endif %}
-            </div>
-            <!-- .post-meta -->
-          </div>
-          <!-- .card-body -->
-        </div>
-      </a>
-    </article>
-  {% endfor %}
 </div>
-<!-- #post-list -->
-
-{% if paginator.total_pages > 1 %}
-  {% include post-paginator.html %}
-{% endif %}
