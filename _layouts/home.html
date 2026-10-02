@@ -29,63 +29,56 @@ layout: default
   {% endfor %}
 {% endif %}
 
-<div class="console{% if paginator.page == 1 %} has-profile{% endif %}">
+<div class="home">
   {% if paginator.page == 1 %}
-    <section class="readme readme-intro" aria-labelledby="intro-title">
-      <h1 id="intro-title" class="ln"><span class="md" aria-hidden="true"># </span>Yogendra Jaiswal</h1>
-      <p class="ln comment"><span aria-hidden="true">// </span>Software Engineer at <a href="{{ site.author_profile.company_url }}">{{ site.author_profile.company }}</a></p>
-      <p class="ln"><span class="key">focus</span> = [backend systems, applied AI, developer tooling]</p>
-      <p class="ln muted">I build backend APIs, AI agent workflows, and developer tools, and write down what I learn along the way.</p>
+    <section class="intro" aria-labelledby="intro-title">
+      <div class="intro-id">
+        <img class="avatar" src="{{ site.avatar | relative_url }}" alt="Photo of Yogendra Jaiswal" width="64" height="64" fetchpriority="high">
+        <div>
+          <h1 id="intro-title">Yogendra Jaiswal</h1>
+          <p class="kicker">Software engineer at <a href="{{ site.author_profile.company_url }}">{{ site.author_profile.company }}</a> · previously Amazon</p>
+        </div>
+      </div>
+      <p class="lead">I build AI workflow platforms and the reliability work underneath them.</p>
+      <p class="intro-body">My work sits where LLM features meet ordinary backend problems: queues, retries, rate limits, state, and tests. I write about what breaks and how I fix it.</p>
+      <p class="intro-links">
+        <a href="{{ site.author_profile.github }}">GitHub</a>
+        <a href="{{ site.author_profile.linkedin }}">LinkedIn</a>
+        <a href="mailto:{{ site.social.email }}">Email</a>
+      </p>
     </section>
 
-    <aside class="profile-panel" aria-label="Profile">
-      <p class="panel-title" aria-hidden="true">profile.jpg</p>
-      <img src="{{ site.avatar | relative_url }}" alt="Yogendra Jaiswal" width="320" height="384" fetchpriority="high">
-      <ul class="profile-links">
-        <li><a href="{{ site.author_profile.github }}">{{ site.author_profile.github | remove: 'https://' | split: '/' | join: '/' }}</a></li>
-        <li><a href="{{ site.author_profile.linkedin }}">{{ site.author_profile.linkedin | remove: 'https://' | remove: 'www.' | split: '/' | join: '/' }}</a></li>
-        <li><a href="mailto:{{ site.social.email }}">{{ site.social.email }}</a></li>
-      </ul>
-      <a class="say-hello" href="mailto:{{ site.social.email }}">Say hello</a>
-    </aside>
-  {% endif %}
-
-  <div class="readme readme-body">
-    {% if paginator.page == 1 %}
-      <section aria-labelledby="work-title">
-        <h2 id="work-title" class="ln"><span class="md" aria-hidden="true">## </span>Selected work</h2>
-        <ol class="md-list">
+    <section class="block" aria-labelledby="work-title">
+      <h2 id="work-title" class="label">Selected work</h2>
+      <ol class="work-list">
+        {% for item in site.data.work.selected %}
           <li>
-            <p class="ln item-title"><a href="{{ '/projects/agent-orchestrator/' | relative_url }}">Agent Orchestrator for OpenCode</a> <span class="badge-featured">Featured</span></p>
-            <p class="ln item-desc">Persistent agent identities, parallel planning, and permission boundaries enforced at the tool layer.</p>
-            <ul class="ln chips" aria-label="Stack">
-              <li>TypeScript</li><li>JavaScript</li><li>Claude Agent SDK</li><li>OpenCode</li>
-            </ul>
-          </li>
-          {% for repo in site.data.showcase.featured_repositories limit: 2 %}
-            <li>
-              <p class="ln item-title"><a href="{{ repo.url }}">{{ repo.name }}</a></p>
-              <p class="ln item-desc">{{ repo.summary }}</p>
-              <ul class="ln chips" aria-label="Stack"><li>{{ repo.language }}</li></ul>
-            </li>
-          {% endfor %}
-        </ol>
-        <p class="ln more"><a href="{{ '/projects/' | relative_url }}">all projects <span aria-hidden="true">→</span></a></p>
-      </section>
-    {% endif %}
-
-    <section aria-labelledby="writing-title">
-      <h2 id="writing-title" class="ln"><span class="md" aria-hidden="true">## </span>Writing</h2>
-      <ol class="md-list" start="{{ offset | plus: 1 }}">
-        {% for post in posts %}
-          <li>
-            <p class="ln item-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></p>
-            <p class="ln item-desc"><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y-%m-%d' }}</time> {{ post.description | default: post.excerpt | strip_html | truncate: 140 | escape }}</p>
+            <a class="work-card" href="{{ item.url | relative_url }}">
+              <span class="work-meta">{{ item.meta }}</span>
+              <span class="work-title">{{ item.title }}</span>
+              <span class="work-summary">{{ item.summary }}</span>
+              <span class="work-facts">{{ item.facts | join: ' · ' }}</span>
+            </a>
           </li>
         {% endfor %}
       </ol>
-      <p class="ln more"><a href="{{ '/writing/' | relative_url }}">all writing <span aria-hidden="true">→</span></a></p>
-      {% if paginator.total_pages > 1 %}{% include post-paginator.html %}{% endif %}
     </section>
-  </div>
+  {% endif %}
+
+  <section class="block" aria-labelledby="writing-title">
+    <h2 id="writing-title" class="label">Writing</h2>
+    <ol class="post-index">
+      {% for post in posts %}
+        <li>
+          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %Y' }}</time>
+          <div>
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            <p>{{ post.description | default: post.excerpt | strip_html | escape }}</p>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+    <p class="more"><a href="{{ '/writing/' | relative_url }}">All writing <span aria-hidden="true">→</span></a></p>
+    {% if paginator.total_pages > 1 %}{% include post-paginator.html %}{% endif %}
+  </section>
 </div>

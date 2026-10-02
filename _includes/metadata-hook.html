@@ -9,7 +9,7 @@
 {% assign same_as = site.social.links | jsonify %}
 {% assign knows_about = site.author_profile.skills | jsonify %}
 
-{% if page.url == '/' or page.url == '/about/' or page.url == '/projects/' or page.url == '/projects/agent-orchestrator/' %}
+{% if page.url == '/' or page.url == '/about/' or page.url contains '/projects/' %}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -17,7 +17,7 @@
       "@id": {{ '/about/#yogendra-jaiswal' | absolute_url | jsonify }},
       "name": {{ site.social.name | jsonify }},
       "url": {{ '/about/' | absolute_url | jsonify }},
-      "image": {{ site.social_preview_image | absolute_url | jsonify }},
+      "image": {{ site.avatar | absolute_url | jsonify }},
       "jobTitle": {{ site.author_profile.job_title | jsonify }},
       "worksFor": {
         "@type": "Organization",
@@ -25,6 +25,7 @@
         "url": {{ site.author_profile.company_url | jsonify }}
       },
       "description": {{ site.author_profile.summary | strip | jsonify }},
+      "alumniOf": [{% for school in site.author_profile.alumni_of %}{ "@type": "CollegeOrUniversity", "name": {{ school | jsonify }} }{% unless forloop.last %}, {% endunless %}{% endfor %}],
       "sameAs": {{ same_as }},
       "knowsAbout": {{ knows_about }}
     }

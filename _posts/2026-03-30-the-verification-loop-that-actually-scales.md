@@ -1,25 +1,27 @@
 ---
-title: The Verification Loop That Actually Scales with AI Coding Agents
+title: "AI Coding Agent Verification: Batch E2E Screenshots, Not Browsers"
 date: 2026-03-30 00:00:00 +0530
 categories: [ai, developer-tools]
-tags: [ai-coding-agents, testing, e2e, playwright, screenshots, visual-regression, ci, verification, frontend]
+tags: [ai-coding-agents, testing, e2e, playwright, visual-regression, ci, frontend]
 description: >-
-  Agents edit faster than I can click through the UI. Here's my Playwright E2E and pixel-diff loop, why I batch the checks, and what screenshots still miss.
-pin: true
+  Browser tools cannot keep up with an agent editing all day. Batch Playwright E2E screenshots, diff against baselines, and keep human review as the merge gate.
 sitemap:
   priority: 0.85
   changefreq: weekly
-image:
-  path: /assets/img/posts/verification-loop-og-1200.jpg
-  alt: "Verification loop for AI coding agents: E2E, Playwright, pixel diff, CI."
 mermaid: true
+image:
+  path: /assets/img/og/posts/verification-loop.jpg
+  alt: "AI Coding Agent Verification: Batch E2E Screenshots, Not Browsers"
 ---
 
-On frontend work with **AI coding agents**, the limiting factor is rarely “can the model produce a plausible diff?” It is whether I can **verify** outcomes fast enough to stay ahead of the edit stream. Browser MCPs and hosted browser APIs were my first answer. They worked until I tried to scale with an agent that makes dozens of edits per session.
+> **TL;DR:** When an agent makes dozens of frontend edits per session, verification becomes the bottleneck, not code generation. I stopped having the model drive a browser after each edit. Instead, the full Playwright suite writes a screenshot per step, CI diffs them against committed baselines with zero tolerance, and a human scans the images before merge. Pixel diffs catch rendering regressions. Only a person catches a picture that matches the baseline but is wrong.
+{: .prompt-tip }
 
-The problem is not capability. It is **throughput**. Every navigation, hover, and full pass through the app costs time and tokens. Thirty edits with a full browse after each one stopped scaling for me: verification became the bottleneck, not the code.
+Browser MCPs and hosted browser APIs were my first answer to "did the agent's change work?" They held up until I worked with an agent that makes dozens of edits per session.
 
-So I dropped **browser-in-the-loop** checks for day-to-day verification and went back to something simpler: **screenshots from E2E tests**, compared in CI—**visual regression testing** without the model re-driving Chrome after every change. Verification becomes a batch job, not a browsing session. I have been running this loop against a lab app I keep in `~/ai-teams`; nothing special about the path—the pattern is portable.
+The problem is not capability. It is **throughput**. Every navigation, hover, and pass through the app costs time and tokens. Thirty edits with a full browse after each one did not scale: verification fell behind the edit stream.
+
+So for day-to-day checks I went back to something simpler: **screenshots from E2E tests, compared in CI**. Visual regression testing, without the model re-driving Chrome after every change. Verification becomes a batch job, not a browsing session. I run this against a lab app, but nothing about the pattern is specific to it.
 
 ## Browser-in-the-loop vs batch E2E screenshots
 
@@ -38,11 +40,11 @@ flowchart LR
   end
 ```
 
-The first path still wins for **exploration**, one-off repro, and “what does this screen do?” The second is what I use for **repeatable frontend verification** when the agent is iterating in a tight loop.
+The browser path still wins for **exploration**, one-off reproduction, and "what does this screen do?" The batch path is what I use for **repeatable verification** while the agent iterates in a tight loop.
 
 ## The loop
 
-This is the **E2E screenshot verification loop** I run on a **fixed runner** (same viewport, seeded data, stable paths):
+It runs on a **fixed runner**: same viewport, seeded data, stable paths.
 
 ```mermaid
 flowchart TD
@@ -55,19 +57,24 @@ flowchart TD
   S7 --> S6
 ```
 
-1. **The agent changes code**—UI, logic, whatever the task needs.
-2. **The full E2E suite runs**—Playwright, isolated DB, fixed ports.
-3. **Each test writes a screenshot** to a stable path like `screenshots/agents/01-list.png`.
-4. **New images are diffed against baselines**—pixelmatch with `threshold: 0` in my setup, so the bar is strict: intentional UI change means updating baselines. That strictness trades away “ignore harmless drift”—font smoothing, anti-aliasing, or GPU quirks can force a PNG refresh even when the UI is fine. I accept that trade on purpose.
-5. **I scan the output folder or the diff** and see what moved in seconds.
+1. The agent changes code. UI, logic, whatever the task needs.
+2. The full E2E suite runs. Playwright, isolated database, fixed ports.
+3. Each test writes a screenshot to a stable path such as `screenshots/agents/01-list.png`.
+4. New images are diffed against baselines with pixelmatch at `threshold: 0`. Any intentional UI change means updating baselines. The cost of that strictness: font smoothing, anti-aliasing, or GPU differences can force a refresh when the UI is fine. I accept that trade on purpose.
+5. I scan the folder or the diff and see what moved in seconds.
 
-Same seed data, same ports, same ordering every run. That is as **reproducible** as E2E gets: fixed viewport, one runner image, no live network surprises *if* the tests control the network the way you think they do. Flakes can still happen—fonts, GPU, a race you have not killed—but you are not adding LLM-in-the-loop variance on top.
+Same seed data, same ports, same ordering every run. That is about as reproducible as E2E gets, provided the tests really control the network. Flakes still happen (fonts, GPU, an unfixed race), but there is no model-in-the-loop variance on top.
 
-**Why I bother:** no per-step model calls to drive a browser (I still pay **CI** minutes, runner time, and artifact storage—trading token burn for pipeline cost). The suite finishes in minutes while a manual pass through every screen does not scale with how often the agent commits. The result is **binary on pixels**: either the frame matches the baseline or it does not—no “looks fine” from a model that defaults to yes. And it is **scannable**: I triage **visual** impact from the images before I read every line diff. The folder is plain files—diffable, committable, no proprietary viewer.
+What this buys:
 
-## A small Playwright starting point
+- **No per-step model calls** to drive a browser. I pay in CI minutes, runner time, and artifact storage instead of tokens.
+- **Minutes, not sessions.** The suite finishes in minutes. A manual pass through every screen does not scale with how often the agent commits.
+- **A binary answer.** The frame matches the baseline or it does not. No "looks fine" from a model that defaults to yes.
+- **Scannable artifacts.** I triage visual impact from images before reading every line of the diff. The output is plain files: diffable, committable, no special viewer.
 
-You do not need a separate screenshot tool to try the idea. Playwright has a built-in [screenshot assertion](https://playwright.dev/docs/test-snapshots):
+## A minimal Playwright version
+
+You do not need a separate screenshot tool. Playwright has a built-in [screenshot assertion](https://playwright.dev/docs/test-snapshots):
 
 ```typescript
 import { test, expect } from '@playwright/test';
@@ -83,45 +90,45 @@ test('home page', async ({ page }) => {
 });
 ```
 
-This assumes `baseURL` is configured for your running app. Replace the generic `main` check with an assertion that the content you care about has actually loaded. Seed the data and use the same browser, viewport, and runner for the baseline and later comparisons.
+This assumes `baseURL` points at your running app. Replace the generic `main` check with an assertion that the content you care about has loaded. Use the same seeded data, browser, viewport, and runner for the baseline and every later comparison.
 
-Run `pnpm exec playwright test --update-snapshots` to generate the first baseline, inspect it, and commit it. After that, run `pnpm exec playwright test` without the update flag. Only update a baseline after reviewing an intentional change. Automatically approving new images defeats the point.
+Generate the first baseline with `pnpm exec playwright test --update-snapshots`, inspect it, and commit it. After that, run `pnpm exec playwright test` without the flag, and only update a baseline after reviewing an intentional change. Auto-approving new images defeats the point.
 
-`threshold: 0` controls the allowed color difference; `maxDiffPixels: 0` allows no pixels counted as different by the comparator. That is not the same as byte-for-byte PNG equality. Keep the rendering environment fixed.
+`threshold: 0` sets the allowed per-pixel color difference. `maxDiffPixels: 0` allows no differing pixels. That is not byte-for-byte PNG equality, which is another reason to keep the rendering environment fixed.
 
-## The honest limitation
+## What it does not catch
 
-This catches **rendering** regressions: what landed on screen. It does not catch **logic bugs** that still paint the right picture. Wrong number, right font—screenshots will not save you. You still want unit tests, **typecheck**, **lint**, and whatever else you trust. Extras that barely move pixels—some **accessibility** issues, some empty states—stay outside this layer too.
+This layer catches **rendering** regressions: what landed on screen. It does not catch logic bugs that paint the right picture. Wrong number, right font: the screenshot passes. You still need unit tests, typecheck, and lint. Problems that barely move pixels, such as many accessibility issues or untested empty states, are outside this layer too.
 
-## The story that still bothers me
+## The failure that still bothers me
 
-A slice was marked done: `pnpm check` green, screenshots produced, README gallery updated. Then someone actually looked at the PNGs. Large blank white patches sat where content should have been. Root cause: a missing `bg-page` on a root layout wrapper.
+A slice was marked done: `pnpm check` green, screenshots produced, README gallery updated. Then someone looked at the PNGs. Large blank white patches sat where content should have been. Root cause: a missing `bg-page` class on a root layout wrapper.
 
-The agent did not flag it. The gates I had automated did not flag it. The **saved screenshot** showed it—once a human treated the image as an artifact worth reading, not only a pass/fail bit.
+The agent did not flag it. The automated gates did not flag it. The **saved screenshot** showed it, once a human treated the image as an artifact worth reading rather than a pass/fail bit.
 
-What followed was worse: a narrow workaround shipped instead of fixing the layout. It cleared the same gates. Without a human looking at the images, it would have gone out.
+Then it got worse: a narrow workaround shipped instead of a layout fix, and it cleared the same gates. Without a human looking at the images, it would have gone out.
 
-That is why manual screenshot review stays a merge gate for me. Automation tells me whether pixels match baselines; it does not tell me whether the picture is *right*. Pixel diff is one layer. Human glance catches semantic garbage the stack cannot encode.
+That is why manual screenshot review stays a merge gate for me. Automation says whether pixels match the baseline. It cannot say whether the baseline is right.
 
-## If you try this Monday
+## If you try this
 
-It is not “AI tooling.” It is **E2E** with a human-readable artifact. The recurring cost is **baseline hygiene**: real UI work means reviewing diffs, approving new PNGs, and committing them—same discipline as any **snapshot** workflow.
+It is not AI tooling. It is E2E with a human-readable artifact. The recurring cost is **baseline hygiene**: real UI work means reviewing diffs, approving new PNGs, and committing them, the same discipline as any snapshot workflow.
 
 What made it stick:
 
-- **Exact match (`threshold: 0`).** Slop in the threshold becomes slop in the process.
-- **Sequential runs.** I trade wall-clock for ordering I can reason about; timing bugs love parallel suites. If you shard, you are making a tradeoff, not discovering a free lunch.
-- **Isolated DB per run** so state does not leak between tests.
-- **Named, numbered paths** so `agents/01-list.png` tells you the story without opening the file.
+- **Exact match (`threshold: 0`).** Slack in the threshold becomes slack in the process.
+- **Sequential runs.** I trade wall-clock time for an ordering I can reason about. Timing bugs love parallel suites. Sharding is a tradeoff, not a free speedup.
+- **An isolated database per run**, so state does not leak between tests.
+- **Named, numbered paths**, so `agents/01-list.png` tells you what it is without opening it.
 
 ## The point
 
-Browser tools optimize for *navigating* like a user. Agents doing bulk edits need to **verify outcomes**—same as any fast feedback loop. Pixels are the receipt, not the verdict.
+Browser tools are built to *navigate* like a user. An agent doing bulk edits needs its outcomes *verified*, like any fast feedback loop. Pixels are the receipt, not the verdict.
 
-I spent a long time on the browser-in-the-loop path before this clicked. The shift was not falling out of love with browsers; it was admitting that **throughput** for verification had to match **throughput** for edits.
+The shift for me was not giving up on browsers. It was admitting that verification throughput has to match edit throughput.
 
 ---
 
 For the orchestration side, see [how the OpenCode plugin separates planning from edits]({% post_url 2026-03-26-Building-an-Agent-Orchestrator-for-OpenCode %}).
 
-I am curious what **verification loops** others have settled on for **coding agents**—especially ones that keep up when the agent is editing all day. If you have a pattern that survived real use, I would like to hear it.
+If you have a verification loop for coding agents that survived real daily use, I would like to hear about it.

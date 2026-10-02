@@ -1,45 +1,32 @@
 ---
 title: Projects
-description: Projects by Yogendra Jaiswal, including an OpenCode agent orchestrator, a PDF generator, Go experiments, and a TypeScript Node.js starter.
+description: Case studies by Yogendra Jaiswal on an enterprise AI workflow platform, an OpenCode agent orchestrator, and benchmarking coding agents on real pull requests.
 icon: fas fa-diagram-project
 order: 1
 ---
 
-<div class="featured-project">
-  <p class="fp-label">Featured</p>
-  <h3><a href="/projects/agent-orchestrator/">Agent Orchestrator for OpenCode</a></h3>
-  <p class="fp-meta">TypeScript &nbsp;·&nbsp; JavaScript &nbsp;·&nbsp; Claude Agent SDK &nbsp;·&nbsp; OpenCode plugin API</p>
-  <p class="fp-desc">
-    A structured multi-agent system for Claude Code: a CTO agent owning decomposition and review, named engineer agents with durable state, parallel planning with architectural synthesis, and permission boundaries enforced at the tool layer. Designed around the unglamorous parts that make agent systems actually usable: persistent identity, mode enforcement, context pressure tracking, and recovery paths.
-  </p>
-  <div class="fp-links">
-    <a href="/projects/agent-orchestrator/">Case Study →</a>
-    <a href="{{ '/posts/Building-an-Agent-Orchestrator-for-OpenCode/' | relative_url }}">Design Notes →</a>
-  </div>
-</div>
+<ol class="work-list">
+  {% for item in site.data.work.selected %}
+    <li>
+      <a class="work-card" href="{{ item.url | relative_url }}">
+        <span class="work-meta">{{ item.meta }}</span>
+        <span class="work-title">{{ item.title }}</span>
+        <span class="work-summary">{{ item.summary }}</span>
+        <span class="work-facts">{{ item.facts | join: ' · ' }}</span>
+      </a>
+    </li>
+  {% endfor %}
+</ol>
 
-## Other Projects
+## Open source
 
-My work spans backend APIs, developer tooling, and applied AI. I'm especially interested in systems where LLM-driven workflows still need strong interfaces, guardrails, and reliable engineering underneath.
+<ul class="project-list">
+  {% for repo in site.data.work.open_source %}
+    <li>
+      <a href="{{ repo.url }}">{{ repo.name }}</a>{% if repo.live_url %} · <a href="{{ repo.live_url }}">live demo</a>{% endif %}
+      <p>{{ repo.summary }}</p>
+    </li>
+  {% endfor %}
+</ul>
 
-{% for repo in site.data.showcase.featured_repositories %}
-### [{{ repo.name }}]({{ repo.url }})
-
-**Stack:** {{ repo.language }}
-
-{{ repo.summary }}
-
-{% if repo.live_url %}
-[Live demo]({{ repo.live_url }})
-{% endif %}
-
-#### What it showcases
-{% for item in repo.highlights %}
-- {{ item }}
-{% endfor %}
-
-{% endfor %}
-
-## More Code
-
-Additional experiments, starter projects, and older work on **[GitHub](https://github.com/yogendra-j)**.
+Older experiments are on [GitHub](https://github.com/yogendra-j).

@@ -1,42 +1,29 @@
 ---
-title: "MySQL vs PostgreSQL Isolation Levels: Defaults and Examples"
+title: "MySQL vs PostgreSQL Isolation Levels: What Actually Differs"
 date: 2024-05-26 00:00:00 +0530
-categories: [isolation, sql]
-tags: [database, db, read uncommitted, repeatable read]     # TAG names should always be lowercase
-description: MySQL defaults to Repeatable Read; PostgreSQL defaults to Read Committed. Here's what changes for snapshots, phantom reads, and concurrent updates.
+categories: [databases, sql]
+tags: [mysql, postgresql, innodb, isolation-levels, transactions, concurrency]
+description: InnoDB defaults to Repeatable Read yet allows lost updates. PostgreSQL defaults to Read Committed and aborts them at Repeatable Read. Tested side by side.
 image:
-  path: /assets/img/mysqlvspostgres.webp
-  alt: Database isolation levels in MySQL and PostgreSQL
-pin: true
+  path: /assets/img/og/posts/isolation-levels.jpg
+  alt: "MySQL vs PostgreSQL Isolation Levels: What Actually Differs"
 ---
 
-## The short answer
+**TL;DR:** MySQL (InnoDB) defaults to Repeatable Read, PostgreSQL to Read Committed, but the names hide the real difference. At Repeatable Read, InnoDB lets a concurrent write overwrite another committed write without an error, while PostgreSQL aborts the second transaction with a serialization failure. Neither database's Repeatable Read prevents write skew, so invariants that span rows need Serializable, explicit locks, or constraints, plus a retry loop.
 
-MySQL's InnoDB engine defaults to **Repeatable Read**. PostgreSQL defaults to **Read Committed**. The same query inside a transaction can behave differently depending on which database you are using.
+Everything below is for InnoDB, not every MySQL storage engine. All three experiments were run against MySQL 8.4 and PostgreSQL 18.
 
-Isolation levels define how much of another transaction's work your current transaction is allowed to observe. Let's look at the defaults, then run an example in two terminals. The MySQL behavior below is for **InnoDB**, not every MySQL storage engine.
+## Defaults, and how to check them
 
-## Overview of Isolation Levels
-
-According to the SQL standard, there are four isolation levels. This table shows the standard's guarantees, with PostgreSQL's stronger behavior called out. It is not a table of MySQL's exact behavior:
-
-| Isolation Level      | Dirty Read                 | Nonrepeatable Read     | Phantom Read              | Serialization Anomaly     |
-| -------------------- | -------------------------- | ---------------------- | -------------------------- | ------------------------- |
-| Read Uncommitted     | Allowed, but not in PG     | Possible               | Possible                   | Possible                  |
-| Read Committed       | Not possible               | Possible               | Possible                   | Possible                  |
-| Repeatable Read      | Not possible               | Not possible           | Allowed, but not in PG     | Possible                  |
-| Serializable         | Not possible               | Not possible           | Not possible               | Not possible              |
-
-## Default Isolation Levels in MySQL and PostgreSQL
-
-| Behavior | MySQL (InnoDB) | PostgreSQL |
+| | MySQL (InnoDB) | PostgreSQL |
 | --- | --- | --- |
-| Default isolation level | `REPEATABLE READ` | `READ COMMITTED` |
-| Plain reads at Read Committed | A new snapshot for each read | A new snapshot for each statement |
-| Plain reads at Repeatable Read | Snapshot established by the first consistent read | Snapshot established by the first non-transaction-control statement |
-| Read Uncommitted | Dirty reads are possible | Behaves like Read Committed |
+| Default level | `REPEATABLE READ` | `READ COMMITTED` |
+| Snapshot at Read Committed | Fresh snapshot per consistent read | Fresh snapshot per statement |
+| Snapshot at Repeatable Read | Taken at the first consistent read, not at `START TRANSACTION` | Taken at the first statement that is not transaction control |
+| Read Uncommitted | Real dirty reads | Behaves as Read Committed |
+| Serializable mechanism | Locks: with autocommit off, plain `SELECT` becomes `SELECT ... FOR SHARE` | Serializable Snapshot Isolation: no extra locks, aborts on dangerous patterns |
 
-Defaults can be changed. Check the connection you are actually using:
+Frameworks and connection pools often override the default, so check the session you actually run on:
 
 ```sql
 -- MySQL 8.x: current session and server default
@@ -49,113 +36,165 @@ SHOW transaction_isolation;
 SHOW default_transaction_isolation;
 ```
 
-For one transaction:
+Setting it for one transaction:
 
 ```sql
--- MySQL: run before starting the transaction
+-- MySQL: applies to the next transaction only
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
 START TRANSACTION;
--- Your queries here
+-- queries
 COMMIT;
 ```
 
 ```sql
 -- PostgreSQL
 BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
--- Your queries here
+-- queries
 COMMIT;
 ```
 
-## Detailed Comparison of Isolation Levels
+## What the SQL standard promises
 
-### Read Uncommitted
-- **Explanation**: This level allows transactions to read uncommitted changes made by other transactions, leading to dirty reads.
-- **MySQL Implementation**: MySQL supports true `Read Uncommitted`, allowing dirty reads.
-- **PostgreSQL Implementation**: PostgreSQL does not have a true `Read Uncommitted` level. In PostgreSQL, `Read Uncommitted` is effectively treated as `Read Committed`.
+The standard defines levels by which anomalies they forbid. Implementations may be stricter. This table is the standard plus PostgreSQL's documented extras. InnoDB's actual behavior is in the experiments below.
 
-### Read Committed
-- **Explanation**: A plain `SELECT` sees data committed before that statement began, not changes committed while it is running. The next `SELECT` can see newer committed data, even inside the same transaction. This prevents dirty reads but allows `non-repeatable reads`.
-- **MySQL Implementation**: MySQL supports `Read Committed`, ensuring that only committed data is read.
-- **PostgreSQL Implementation**: `Read Committed` is the default isolation level in PostgreSQL.
+| Level | Dirty read | Non-repeatable read | Phantom read | Serialization anomaly |
+| --- | --- | --- | --- | --- |
+| Read Uncommitted | Allowed (not in PG) | Possible | Possible | Possible |
+| Read Committed | Not possible | Possible | Possible | Possible |
+| Repeatable Read | Not possible | Not possible | Allowed (not in PG) | Possible |
+| Serializable | Not possible | Not possible | Not possible | Not possible |
 
-### Repeatable Read
-- **Explanation**: Repeated reads use the same snapshot, so another transaction's commit does not change what a plain read sees. Your own writes are still visible. The SQL standard allows phantom reads at this level, but implementations can give stronger guarantees.
-- **MySQL Implementation**: InnoDB's plain `SELECT` statements use a consistent snapshot, so repeating the query does not suddenly show another transaction's newly inserted rows. Locking reads and writes use the current state instead. For range searches, next-key locks can block inserts into the scanned gaps. Mixing snapshot reads with locking reads is where the behavior gets less obvious.
-- **PostgreSQL Implementation**: The transaction keeps the same snapshot and does not see phantom rows. A concurrent insert does not itself cause an error. But if you try to update a row changed by another transaction after your snapshot was established, PostgreSQL can throw `ERROR: could not serialize access due to concurrent update`. Retry the whole transaction, not just that statement.
+The table leaves out the anomaly that causes the most production bugs: the **lost update**. The standard's anomaly list does not cover it, and this is where the two engines diverge.
 
-### Serializable
-- **Explanation**: This is the strictest isolation level, ensuring complete isolation from other transactions. It prevents dirty reads, non-repeatable reads, phantom reads, and serialization anomaly. `Serialization anomaly` is when the state resulting from a group of transactions is inconsistent with all the possible ordering of the transactions.
-- **MySQL Implementation**: MySQL supports `Serializable`, ensuring full isolation.
-- **PostgreSQL Implementation**: PostgreSQL detects conflicting read/write dependencies and can abort a transaction with a serialization failure. Successful transactions behave as if they ran one at a time. The application still needs to retry aborted transactions.
+## Experiment 1: the lost update
 
-## Experiment: Repeatable Read in PostgreSQL
-Let's run an experiment to see how `Repeatable Read` works in PostgreSQL.
+Two requests read a balance of 100 and compute a new value in application code. One withdraws 30, the other 50. The correct final balance is 20.
 
-1. **Run in a Docker Container**:
-    ```bash
-    docker run --name pg-isolation -e POSTGRES_PASSWORD=PW -d postgres:18
-    ```
+```sql
+CREATE TABLE accounts (id INT PRIMARY KEY, balance INT NOT NULL);
+INSERT INTO accounts VALUES (1, 100);
+```
 
-2. **Create a New Database and Table**:
-    ```bash
-    docker exec -it pg-isolation psql -U postgres
-    ```
-    ```sql
-    CREATE DATABASE new_db;
-    ```
-    Exit psql with `\q`, then connect to the new database:
-    ```bash
-    docker exec -it pg-isolation psql -U postgres -d new_db
-    ```
-    ```sql
-    CREATE TABLE users ( id SERIAL PRIMARY KEY, username VARCHAR(50) NOT NULL );
-    INSERT INTO users (username) VALUES ('u1');
-    ```
+| Step | Session A | Session B |
+| --- | --- | --- |
+| 1 | `BEGIN;` then `SELECT balance FROM accounts WHERE id = 1;` returns 100 | |
+| 2 | | `BEGIN;` then the same `SELECT` returns 100 |
+| 3 | `UPDATE accounts SET balance = 70 WHERE id = 1;` | |
+| 4 | | `UPDATE accounts SET balance = 50 WHERE id = 1;` blocks on A's row lock |
+| 5 | `COMMIT;` | Unblocks. Outcome depends on the engine. |
 
-3. **Connect to the Same Database from Another Terminal**:
-    ```bash
-    docker exec -it pg-isolation psql -U postgres -d new_db
-    ```
+| Engine and level | Session B after step 5 | Final balance |
+| --- | --- | --- |
+| MySQL, Repeatable Read (default) | Update succeeds, commit succeeds | 50 (A's withdrawal is lost) |
+| PostgreSQL, Read Committed (default) | Update succeeds, commit succeeds | 50 (lost) |
+| PostgreSQL, Repeatable Read | `ERROR: could not serialize access due to concurrent update` | 70, B must retry |
 
-4. **Start a Transaction and Establish a Snapshot in Each Terminal**:
-    ```sql
-    BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-    SELECT * FROM users WHERE id = 1;
-    ```
-    Run both reads before either update. `BEGIN` alone does not establish the snapshot.
+Why InnoDB does this: plain `SELECT` reads the snapshot, but `UPDATE`, `DELETE`, and locking reads always act on the latest committed row (a "current read"). B's snapshot said 100, its write landed on top of A's 70, and nothing complained. PostgreSQL Repeatable Read uses first-updater-wins: if a row changed after your snapshot, your write to it fails.
 
-5. **Fire Update Queries from Both Terminals Without Committing**:
-    ```sql
-    -- Terminal One
-    UPDATE users SET username = 'U1_T1' WHERE id = 1;
-    ```
-    ```sql
-    -- Terminal Two
-    UPDATE users SET username = 'U1_T2' WHERE id = 1;
-    ```
+Fixes, in order of preference:
 
-6. **Commit in Terminal One**:
-    ```sql
-    COMMIT;
-    ```
-    - Terminal Two was waiting for Terminal One's row lock.
-    - Once Terminal One commits, Terminal Two throws `ERROR: could not serialize access due to concurrent update`.
-    - Run `ROLLBACK;` in Terminal Two to leave the failed transaction.
-    - If Terminal One had rolled back instead, Terminal Two's update could proceed. Commit or roll back Terminal Two when done.
+1. Do the arithmetic in SQL: `UPDATE accounts SET balance = balance - 30 WHERE id = 1;` Both engines evaluate this against the current row, so it is safe at any level.
+2. Lock what you read. `SELECT ... FOR UPDATE` serializes the read-modify-write on that row.
+3. Add a version column and check it: `UPDATE ... SET balance = 70, version = version + 1 WHERE id = 1 AND version = 7;` and treat zero affected rows as a conflict.
+4. Run at PostgreSQL Repeatable Read or Serializable, and retry on failure.
 
-7. **Clean Up the Experiment**:
-    Exit both psql sessions with `\q`, then remove the disposable database container:
-    ```bash
-    docker rm -f pg-isolation
-    ```
+## Experiment 2: InnoDB writes can see rows your reads cannot
 
-## Conclusion
-Understanding the differences between PostgreSQL isolation levels and MySQL behavior is essential for database design and application reliability. Both databases support the standard isolation levels, but their default settings and concurrency behavior, especially around `Repeatable Read`, can lead to very different outcomes in production. Choosing the right isolation level for your workload helps protect data integrity without paying unnecessary performance costs.
+```sql
+CREATE TABLE jobs (id INT PRIMARY KEY, status VARCHAR(20));
+INSERT INTO jobs VALUES (1, 'pending');
+```
 
-If the issue is a client retrying the same operation, isolation alone is not enough. That is where [idempotency keys]({% post_url 2026-03-21-Designing-Idempotent-APIs-for-Reliable-Backends %}) come in.
+Session A, at Repeatable Read:
+
+```sql
+START TRANSACTION;
+SELECT COUNT(*) FROM jobs WHERE status = 'pending';   -- 1
+-- Session B now runs (autocommit): INSERT INTO jobs VALUES (2, 'pending');
+SELECT COUNT(*) FROM jobs WHERE status = 'pending';   -- still 1: snapshot read
+UPDATE jobs SET status = 'claimed' WHERE status = 'pending';  -- MySQL: 2 rows affected
+SELECT COUNT(*) FROM jobs WHERE status = 'claimed';   -- MySQL: 2
+COMMIT;
+```
+
+InnoDB's `UPDATE` claimed a row that both of A's reads said did not exist, and after the update that row became visible to A. PostgreSQL's `UPDATE` uses the transaction snapshot, so it affects 1 row. If your code reads a set, makes a decision, and then writes with a broader `WHERE`, InnoDB can apply that decision to rows it never evaluated. Use the same predicate with `FOR UPDATE` on the read, or write by primary key.
+
+On the locking side, InnoDB Repeatable Read takes next-key (gap) locks on range scans for locking reads and writes. That blocks inserts into the scanned range, which prevents phantoms for those statements but also causes lock waits and deadlocks that Read Committed avoids. Read Committed in InnoDB disables most gap locking, a common reason teams switch to it.
+
+## Experiment 3: write skew needs Serializable
+
+Rule: at least one doctor must stay on call. Alice and Bob both try to go off call at the same time.
+
+```sql
+CREATE TABLE oncall (doctor VARCHAR(10) PRIMARY KEY, on_call BOOLEAN NOT NULL);
+INSERT INTO oncall VALUES ('alice', true), ('bob', true);
+
+-- Each session, concurrently, with its own name
+-- (set the isolation level first, as shown above):
+BEGIN;
+SELECT COUNT(*) FROM oncall WHERE on_call;               -- both see 2
+UPDATE oncall SET on_call = false WHERE doctor = 'alice'; -- Bob's session uses 'bob'
+COMMIT;
+```
+
+The two transactions update different rows, so first-updater-wins does not trigger.
+
+| Engine and level | Result | Doctors on call |
+| --- | --- | --- |
+| MySQL, Repeatable Read | Both commit | 0 |
+| PostgreSQL, Repeatable Read | Both commit | 0 |
+| PostgreSQL, Serializable | One fails: `could not serialize access due to read/write dependencies among transactions` | 1 |
+| MySQL, Serializable | One fails: `ERROR 1213 (40001): Deadlock found when trying to get lock` | 1 |
+
+Both Serializable implementations protect the invariant, through different mechanisms. MySQL's version turns reads into shared locks, so under contention you get lock waits and deadlocks. PostgreSQL's version does not block readers but can abort transactions that would have been fine (false positives), so the abort rate rises under load. If you only need this for one invariant, `SELECT ... FOR UPDATE` on the rows that define it is usually cheaper than raising the level for the whole workload.
+
+## Retrying correctly
+
+Serializable and PostgreSQL Repeatable Read are only correct if the application retries.
+
+| Error | Meaning | Action |
+| --- | --- | --- |
+| PG `40001` serialization_failure | Snapshot conflict | Retry the whole transaction |
+| PG `40P01` deadlock_detected | Deadlock victim | Retry the whole transaction |
+| MySQL `1213` (SQLSTATE `40001`) | Deadlock, transaction rolled back | Retry the whole transaction |
+| MySQL `1205` lock wait timeout | Only the last statement is rolled back by default | Roll back explicitly, then retry |
+
+The `1205` row catches people. With the default `innodb_rollback_on_timeout=OFF`, the transaction stays open with its earlier statements applied. Committing at that point persists a partial transaction.
+
+Retry rules:
+
+- Retry the whole transaction from `BEGIN`, re-reading data. Retrying one statement reuses a stale decision.
+- Keep transactions short and free of network calls, so they hold locks and old snapshots for less time.
+- Cap retries and add jitter. Unbounded retries turn contention into an outage.
+- A retried transaction is safe; a retried HTTP request with side effects is not. That needs [idempotency keys]({% post_url 2026-03-21-Designing-Idempotent-APIs-for-Reliable-Backends %}).
+
+## Reproduce it
+
+```bash
+docker run --name pg-isolation -e POSTGRES_PASSWORD=pw -d postgres:18
+docker run --name mysql-isolation -e MYSQL_ROOT_PASSWORD=pw -e MYSQL_DATABASE=demo -d mysql:8.4
+
+# Open two terminals per engine
+docker exec -it pg-isolation psql -U postgres
+docker exec -it mysql-isolation mysql -uroot -ppw demo
+
+# Clean up
+docker rm -f pg-isolation mysql-isolation
+```
+
+In `psql`, use `BEGIN TRANSACTION ISOLATION LEVEL ...`. In `mysql`, run `SET TRANSACTION ISOLATION LEVEL ...` before `START TRANSACTION`.
+
+## Takeaways
+
+- [ ] Know your effective level per connection. Do not assume the database default.
+- [ ] Read-modify-write in application code is a lost update at both defaults. Use atomic `UPDATE`, `FOR UPDATE`, or a version column.
+- [ ] In InnoDB Repeatable Read, snapshot reads and writes see different data. Do not decide on one and act with the other.
+- [ ] Invariants across rows (quotas, on-call rules, double booking) need Serializable, explicit locks, or a constraint. Repeatable Read is not enough in either engine.
+- [ ] Anything above Read Committed needs a whole-transaction retry loop that also handles MySQL `1205` correctly.
 
 ## References
 
 - [PostgreSQL: Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html)
 - [MySQL 8.4: InnoDB Transaction Isolation Levels](https://dev.mysql.com/doc/refman/8.4/en/innodb-transaction-isolation-levels.html)
 - [MySQL 8.4: Consistent Nonlocking Reads](https://dev.mysql.com/doc/refman/8.4/en/innodb-consistent-read.html)
+- [MySQL 8.4: InnoDB Error Handling](https://dev.mysql.com/doc/refman/8.4/en/innodb-error-handling.html)

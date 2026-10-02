@@ -1,75 +1,55 @@
 ---
 layout: page
-title: "Agent Orchestrator for OpenCode"
-description: "An OpenCode agent orchestrator with persistent Claude Code sessions, read-only exploration, and parallel planning. The design and its tradeoffs."
+title: "Agent Orchestrator for OpenCode and Claude Code"
+description: "An OpenCode plugin I built: a CTO agent that delegates to five persistent Claude Code sessions, with read-only modes enforced in code. 96 releases, 373 tests."
 permalink: /projects/agent-orchestrator/
 ---
 
-An OpenCode plugin that turns a single Claude Code session into a structured engineering org: a CTO agent that owns decomposition and final judgment, named engineer agents with persistent state, an architect that synthesizes competing plans, and permission boundaries enforced in code, not just in prompts.
+**Project:** `claude-opencode-subagents` (source private) &nbsp;·&nbsp; **Stack:** TypeScript, OpenCode plugin API, Claude Agent SDK, Vitest
 
-**Project:** `claude-opencode-subagents` &nbsp;·&nbsp; **Stack:** TypeScript, JavaScript, Claude Agent SDK, OpenCode plugin API
+**Timeline:** 22 March to 26 April 2026 &nbsp;·&nbsp; 244 commits &nbsp;·&nbsp; 96 tagged releases (v0.1.2 to v0.1.100) &nbsp;·&nbsp; 373 tests in 17 files, CI on lint, knip, typecheck, test, build
 
-The source repository is not currently public. This page covers the design; the [companion post]({% post_url 2026-03-26-Building-an-Agent-Orchestrator-for-OpenCode %}) goes into the mechanisms and tradeoffs.
+The [deep dive]({% post_url 2026-03-26-Building-an-Agent-Orchestrator-for-OpenCode %}) covers the code and tradeoffs.
 
----
+## Problem
 
-## The problem
+I wanted one agent to own a task while the hands-on work ran in Claude Code. One session that investigates, edits, and checks itself tends to edit early. A fresh session per step loses the context the last one built.
 
-Most multi-agent demos hold together for the first few interactions, then fall apart. The failure modes are predictable: no persistent identity, no real ownership over decisions, every agent doing a little of everything, and exploration mixed with mutation in a single pass.
+## Constraints
 
-The gap between a demo and a usable tool is almost never about adding more agents. It's about the unglamorous engineering underneath — state management, permission surfaces, context pressure, recovery paths. That's what this project is about.
+- Investigation must not edit files, enforced in code, not in the prompt.
+- Engineers keep their Claude session across assignments and process restarts.
+- Two OpenCode sessions in one repo must not share engineers.
+- Undo in the manager session must also undo the engineers' work.
 
-## What I built
+## Design
 
-A structured orchestration layer plugged into OpenCode as a first-class plugin:
-
-```
-User → CTO → engineer agents → architect → verification
-```
-
-### Persistent agent state
-
-Each engineer wrapper tracks its session ID, busy state, work mode, last task summary, and context usage — and it survives restarts. The active CTO team is persisted so a new CTO session adopts the existing team instead of silently abandoning it. `TeamStateStore` uses queued writes and atomic rename to avoid state corruption under concurrent updates.
-
-Most stateless agent setups push the cognitive load back onto the user: every session begins with re-explaining the context, re-establishing the plan. Persistent identity removes that tax.
-
-### Enforced mode separation
-
-The `claude` bridge tool runs in three modes: `explore`, `implement`, `verify`. In `explore` mode, the SDK adapter denies write tools and destructive shell patterns at the tool layer:
-
-```typescript
-if (mode === 'explore' && isWriteTool(toolName, toolInput)) {
-  return {
-    behavior: 'deny',
-    message: 'Write operations are restricted in explore mode.',
-  };
-}
+```text
+cto (OpenCode, reads and delegates, never edits)
+ ├─ dispatch_engineer ─> Tom | John | Maya | Sara | Alex   (persistent Claude Code sessions)
+ ├─ plan_with_team ────> lead + challenger in parallel ─> write-restricted synthesis
+ ├─ run_browser_qa ────> BrowserQA (Playwright, never writes)
+ ├─ run_code_review ───> fresh read-only reviewer, focus inferred from changed paths
+ └─ git, approval policy, team status, reset
 ```
 
-Prompting an agent to "only investigate" is polite. Enforcing it in the tool layer is engineering.
+- **Modes:** `explore` sessions get write tools and write-like Bash denied in the SDK `canUseTool` callback.
+- **State:** one team file per CTO session, per-team write queue, atomic rename. Busy is a 15-minute lease, not a lock.
+- **Context:** token, cost, then turn-count estimates drive warnings. Sessions reset only on a real context-exhausted error.
+- **Signals:** `implement` raises review and verify flags. Verify clears only on `VERIFY_STATUS: pass`. Commits warn but do not block.
+- **Undo:** a CTO revert sends `/undo` to each engineer's Claude session once per later assignment.
 
-### Parallel planning, serial mutation
+## What changed and why
 
-`plan_with_team` fans out to two engineers — a lead and a challenger — exploring from different angles concurrently, then routes both drafts to the architect for synthesis before any code changes happen. Only one engineer modifies the worktree at a time.
+| Date | Change | Why |
+| --- | --- | --- |
+| 23 Mar | Removed per-run git worktrees | One shared worktree, one implementing engineer at a time |
+| 26 Mar | Worktree-wide "active team" replaced by one team per CTO session, 17 hours after shipping | Two sessions could share engineers |
+| 16 to 17 Apr | Removed the engineer wrappers, the architect/planner wrapper, and the `claude` bridge tool | Two model hops per assignment; assignments now reach Claude verbatim |
+| 23 to 26 Apr | Reviewer moved from Claude to an OpenCode agent on the CTO's model, fresh session per review | A different model family reviews, without the CTO's reasoning |
 
-Parallelism is most valuable where it's safe: competing investigation and plan synthesis. It's actively harmful when two agents race to edit files built on incompatible assumptions.
+## Results
 
-### Context pressure tracking
-
-The `ContextTracker` estimates session saturation using a fallback ladder: token counts when available, cost-based estimation when not, turns-based as a last resort. It assigns warning levels (`moderate`, `high`, `critical`) and detects probable compaction events. Context limits are treated as a systems problem — visible before they degrade quality, not discovered after.
-
-### Permission surfaces, not prompt rules
-
-The CTO gets delegation, git, and approval controls. Engineers access the `claude` bridge only. The architect is read-only and synthesis-only. A deny-list blocks clearly dangerous operations: `rm -rf /`, `git push --force`, `git reset --hard`.
-
-If a role shouldn't have git management access, the right move is to make those tools unavailable — not to add another paragraph to the system prompt.
-
-## What it demonstrates
-
-This is production-oriented engineering applied to a domain where most implementations stop at "it works in the demo." The interesting decisions aren't about agent count. They're about control flow: ownership, continuity, enforced boundaries, and graceful degradation under pressure.
-
-The plugin is a concrete example of applied AI engineering where the value comes from treating LLM sessions like systems components — with the same attention to state, failure modes, and recovery that any reliable backend service requires.
-
----
-
-For a full teardown of the design decisions and the specific tradeoffs, read the companion post: [Building a Real Agent Orchestrator for OpenCode →](/posts/Building-an-Agent-Orchestrator-for-OpenCode/)
+- 373 passing tests, including restart recovery, concurrent writes, and 19 undo cases.
+- `/reflect` asks each engineer used in a session what in its instructions misled it.
+- Known limits: single-writer is a prompt rule; Bash write detection is a regex list.

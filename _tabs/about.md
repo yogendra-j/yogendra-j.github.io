@@ -1,45 +1,43 @@
 ---
 # the default layout is 'page'
 title: About
-description: I'm Yogendra Jaiswal, a software engineer at Incubyte. My work and writing cover backend APIs, SQL, TypeScript, and AI agent workflows.
+description: Yogendra Jaiswal is a software engineer at Incubyte and ex-Amazon SDE who builds AI workflow platforms, backend systems, and agent tooling in TypeScript.
 image: /assets/img/profile.jpg
 icon: fas fa-info-circle
 order: 3
 ---
 
-## Yogendra Jaiswal
+I'm a software engineer at [Incubyte](https://incubyte.co), with about five years in industry. I started at Amazon as an SDE. For the last two years I've been a core engineer on an enterprise AI automation platform, where I work across the workflow engine, its queues and schedulers, LLM integrations, and the product UI on top.
 
-I am a software engineer (SDE) currently working at **[Incubyte](https://incubyte.co)**. My core background is backend engineering, and my current work is increasingly shaped by applied AI: building practical tooling, agent workflows, and LLM-powered developer experiences that still need to behave like real software systems. Day to day I work across **TypeScript**, **React**, and **Next.js** where the product surface needs it, alongside APIs and services.
+I trained as a civil engineer (B.Tech, IIT Gandhinagar) and a structural engineer (M.Tech, IIT Guwahati) before moving to software. The habit that carried over is asking how a thing fails before asking how it works.
 
-This site is both a technical blog and a compact portfolio: a place to document what I build, how I think about backend systems, and the technical areas I can go deep on in interviews and hands-on engineering work.
+## What I'm good at
 
-## Focus Areas
+Backend systems
+: NestJS, PostgreSQL, Prisma, Redis and BullMQ. Queues, retries, idempotency, rate limits across instances, schema migrations.
 
-- Backend APIs and application design
-- Applied AI engineering, LLM integrations, and agent workflows
-- AI-assisted developer tooling, prompt and tool design, and workflow guardrails
-- TypeScript, React, Next.js, Node.js, and NestJS
-- Go and Java
-- PostgreSQL, SQL behavior, and data consistency
-- System design, performance, and reliability
+Applied AI
+: Agent and tool orchestration, provider API migrations, file search and citations, browser agents, evaluating coding agents on real work.
 
-## Where to start
+Product engineering
+: React and Next.js for the screens that make a complex backend usable: flow editors, run history, analytics.
 
-The code and examples are more useful than a list of skills:
+Engineering practice
+: Test-first bug fixes, modules with in-memory test doubles, design docs before contested changes. I also interview engineering candidates at Incubyte.
 
-- [PostgreSQL isolation levels vs MySQL]({% post_url 2024-05-26- Database Isolation Levels: MySQL vs PgSQL %}): what concurrent transactions actually see, with a two-terminal example.
-- [Designing idempotent APIs]({% post_url 2026-03-21-Designing-Idempotent-APIs-for-Reliable-Backends %}): retries, lost responses, and what needs to be stored.
-- [The verification loop for AI coding agents]({% post_url 2026-03-30-the-verification-loop-that-actually-scales %}): the screenshot workflow I use, and what it still misses.
-- [Projects]({{ '/projects/' | relative_url }}): public code and experiments.
 
-## Current Snapshot
+## How I work
 
-- Role: **Software Engineer (SDE)**
-- Company: **[Incubyte](https://incubyte.co)**
-- Public code: **[GitHub](https://github.com/yogendra-j)**
-- Professional profile: **[LinkedIn](https://www.linkedin.com/in/yogendra-jaiswal/)**
-- Contact: **[yogendra.jaiswal.503@gmail.com](mailto:yogendra.jaiswal.503@gmail.com)**
+A change is done when I have seen it work on the running system. Passing tests are where that check starts.
 
-## Why This Site Exists
+If an agent or a service must never do something, I make the tool or the type refuse it, rather than writing it down as a rule.
 
-Most portfolios stop at listing skills. I prefer showing my thinking through concrete projects and technical writing. If you are evaluating me for a role, the best entry points are the **Projects**, **About**, and **latest posts** sections.
+## Start here
+
+- [Designing idempotent APIs]({% post_url 2026-03-21-Designing-Idempotent-APIs-for-Reliable-Backends %}): retries, lost responses, and what you need to store.
+- [MySQL vs PostgreSQL isolation levels]({% post_url 2024-05-26- Database Isolation Levels: MySQL vs PgSQL %}): what concurrent transactions see, shown in two terminals.
+- [The verification loop for AI coding agents]({% post_url 2026-03-30-the-verification-loop-that-actually-scales %}): how I check agent changes faster than they arrive.
+
+## Contact
+
+[Email](mailto:yogendra.jaiswal.503@gmail.com) is best. I'm also on [LinkedIn](https://www.linkedin.com/in/yogendra-jaiswal/) and [GitHub](https://github.com/yogendra-j).

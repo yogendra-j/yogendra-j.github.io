@@ -1,127 +1,246 @@
 ---
-title: Finding Nearby Locations Fast with Geohashing in Python
+title: "Geohash Proximity Search in Python: Grids, Neighbors, Precision"
 date: 2023-08-13 00:00:00 +0530
 categories: [system-design, python]
-tags: [geohash, proximity, location]     # TAG names should always be lowercase
-description: A practical walkthrough of using geohashing to make proximity search faster than a naive linear scan.
-pin: true
+tags: [geohash, geospatial, proximity-search, python, postgis, redis]
+description: Index points by geohash, look up the query cell plus its 8 neighbors, then filter by true distance. Python code, precision table, edge cases, PostGIS and Redis.
+image:
+  path: /assets/img/og/posts/geohash.jpg
+  alt: "Geohash Proximity Search in Python: Grids, Neighbors, Precision"
 ---
 
-## Problem statement: 
-The efficient way to find all items near a given location(lat, long). 
-## The obvious solution:
-- The easiest way would be to calculate the distance of all items from the given location. 
-- Use the Haversine formula to calculate distance, then select items within a desirable range. 
-- For a case like Uber, start with a threshold of 500 m; if no cabs are found in the 500 m range, then keep increasing the threshold. If no cabs are found even after increasing the threshold beyond the acceptable range, display the "can't find a ride right now" message. 
-### Why it's not efficient? 
-- This approach checks every item, so it is a linear search.
-- Sorting by just the x-coordinate is not enough because distance also depends on y. Spatial indexes can help; here we'll try a simple grid-based approach.
+**TL;DR:** A geohash turns latitude and longitude into one sortable string, so "what is near me" becomes a lookup of a few grid cells instead of a scan of every point. Pick a precision whose cells are at least as large as your search radius, fetch the point's cell and its 8 neighbors, then filter the candidates by real distance. In production, use PostGIS or Redis `GEOSEARCH`, which already do this.
 
-### Simple implementation ([Github](https://github.com/yogendra-j/small-experiments/blob/6311724f99aa105eca9b3a04c4c7c7a7f6f7976f/geohash-impl/proximirt-service.ipynb)) 
+## The problem
+
+Given a location, find every item (restaurants, drivers, stores) within some radius. A ride-hailing app might search 500 m, widen the radius if nothing turns up, and give up past an acceptable limit.
+
+## Baseline: scan everything
+
+Compute the distance to every item and keep the close ones. On a sphere that distance is the haversine formula. This demo uses a flat 10,000 x 10,000 grid and Euclidean distance to keep the idea visible.
+
 ```python
 import math
 import random
-import time
-from collections import defaultdict
 
-# Generating random locations of items (e.g., restaurants)
-items = [(random.randint(0, 9999), random.randint(0, 9999)) for _ in range(3000000)]
-
-# Threshold distance
+items = [(random.randint(0, 9999), random.randint(0, 9999)) for _ in range(3_000_000)]
 threshold = 100
-
-# Example coordinates of the client
 client_x, client_y = 5000, 5000
 
 def euclidean_distance(x1, y1, x2, y2):
-  return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+    return math.hypot(x1 - x2, y1 - y2)
 
-def find_within_threshold(x, y, points, threshold):
-  within_threshold = []
-  
-  for point in points:
-    distance = euclidean_distance(x, y, point[0], point[1])
-    if distance <= threshold:
-      within_threshold.append(point)
-
-  return within_threshold
-
-# Time the execution
-start_time = time.time()
-
-items_within_threshold = find_within_threshold(client_x, client_y, items, threshold)
-
-end_time = time.time()
-
-print(f"Found {len(items_within_threshold)} items within a distance of {threshold}")
-print(f"Execution time: {end_time - start_time} seconds")
-# Found 989 items within a distance of 100
-# Execution time: 2.297866106033325 seconds
+nearby = [p for p in items if euclidean_distance(client_x, client_y, *p) <= threshold]
 ```
 
-## Better solution: Geohashing 
-- Can the location data (latitude and longitude) be transformed into one value such that the items can be sorted based on the column? Then The client location could also be transformed and searched through in O(log(n)) time. 
-- Geohashing does precisely this. Geohashing is a public-domain geocoding system that encodes a geographic location into a short string of characters. It helps with proximity searches by dividing the world into a grid of varying sizes and using a base-32 string to represent a specific cell within that grid.
-- The length of the geohash depends on the desired accuracy. For example, a geohash with ten characters represents a grid with an area of 1.19 m x 0.59 m. 
-- If desired accuracy is lower or the permissible search radius is higher, then only the first few characters can be used to compare from the client's geohash, the more characters match (from left to right), the lesser the area of the smallest common grid they both share. See [this explanation of geohash grids](https://www.geospatialworld.net/blogs/polygeohasher-an-optimized-way-to-create-geohashes/) for more detail.
+This is O(n) per query. Sorting by x alone does not help much, because two points with close x values can still be far apart in y. We need one key that keeps both dimensions close together.
 
+## The idea: interleave the bits
 
-### Simple Geohash Implementation ([Github](https://github.com/yogendra-j/small-experiments/blob/6311724f99aa105eca9b3a04c4c7c7a7f6f7976f/geohash-impl/proximirt-service.ipynb)) 
-Even though libraries are available in most programming languages to calculate geohashes, let's try implementing a simplified version. I will use the data used in the previous solution to compare time. 
-### Step 1: Dividing the Space 
-You can think of geohashing as weaving two threads together. Imagine your x and y coordinates as two different colored threads. By weaving them into a single strand, you create a unique pattern corresponding to a specific grid cell on the map. Now we can use the interleaved coordinates to divide the space into grids. If the last 2 bits from both x and y coordinates are ignored, we end up with size 4 x 4 grids. For example, 16 can be represented by **1 0 0 0 0**. If the last two digits vary, they can go from 0 0 to 1 1. So the variation can be from 16 to 19.
-#### Code: 
+Interleave the bits of x and y into one integer: x bits at even positions, y bits at odd positions. This is a Z-order (Morton) code. Points whose codes share their high bits fall in the same square cell, and dropping the lowest `2k` bits gives the cell ID for a grid of `2^k x 2^k` squares.
+
+Code for the experiment: [notebook on GitHub](https://github.com/yogendra-j/small-experiments/blob/6311724f99aa105eca9b3a04c4c7c7a7f6f7976f/geohash-impl/proximirt-service.ipynb).
+
 ```python
+from collections import defaultdict
+
 def interleave(x, y):
-  result = 0
-  for i in range(32):
-    result |= ((x & (1 << i)) << i) | ((y & (1 << i)) << (i + 1))
-  return result >> 4 # Exclude the last 4 bits
-```
-#### Explanation: 
-This function interleaves the bits of the x and y coordinates to create a unique value representing a specific grid cell. It loops through the bits of the coordinates, interleaving them, and then shifts the result to exclude the last four bits. This is essential to merge the two coordinates into a unique value. 
-### Step 2: 
-Assigning Locations to Grids Next, we assign locations to grids using the unique values generated in step 1. 
-#### Code: 
-```python
+    result = 0
+    for i in range(32):
+        result |= ((x & (1 << i)) << i) | ((y & (1 << i)) << (i + 1))
+    return result >> 4  # drop 2 bits of x and 2 of y: 4 x 4 cells
+
+# Build once: cell ID -> points in that cell
 grids = defaultdict(list)
-
 for item in items:
-  key = interleave(*item)
-  grids[key].append(item)
-```
-#### Explanation: 
-Here, each item's coordinates are passed to the `interleave` function, and the resulting key is used to group the items in a dictionary (`grids`) by their grid cell. Items with the same key are in the same grid cell. 
-### Step 3: 
-Searching for Items in Proximity We now search for items near a specific location by looking at the target grid and its neighboring cells. 
-#### Code: 
-```python
+    grids[interleave(*item)].append(item)
+
+# Query: every cell that can hold a point within the threshold
+CELL = 4
+reach = math.ceil(threshold / CELL)  # 25 cells in each direction
 candidates = []
+for dx in range(-reach, reach + 1):
+    for dy in range(-reach, reach + 1):
+        key = interleave(client_x + dx * CELL, client_y + dy * CELL)
+        candidates.extend(grids.get(key, []))
 
-for offset in range(-25, 26):
-  for offset_y in range(-25, 26):
-    neighbor_key = interleave(client_x + offset * 4, client_y + offset_y * 4)
-    candidates.extend(grids.get(neighbor_key, []))
+# Cells are squares and the search area is a circle, so filter again
+found = [p for p in candidates if euclidean_distance(client_x, client_y, *p) <= threshold]
 ```
-#### Explanation: 
-Because the grid size is 4 x 4, adding 4 to the y coordinate of a point will shift it to the grid just above it, and subtracting it will shift it below. Similarly, adding or subtracting from the x coordinate will shift the point to the right or left. If we add 4 to both coordinates, the point will shift to the grid in the upper-right direction, and so on, we can navigate through all 8 neighbors of a grid. Similarly, subtracting/adding 8 (4 x 2) will allow us to navigate to second-level neighbors.
-### Step 4: 
-Filtering Items within the Threshold Finally, we filter the items that are within the desired threshold. 
-#### Code:
+
+Adding `CELL` to x moves one cell right, and adding it to y moves one cell up. Looping over `-reach..reach` in both directions covers every cell that can hold a point within the threshold. The final filter is required, because the corners of the square of cells lie outside the circle.
+
+One run on CPython with 3 million points (timings vary by machine; the results matched the scan exactly):
+
+| Step | Time | Points examined |
+| --- | --- | --- |
+| Linear scan | 0.75 s | 3,000,000 |
+| Build the grid index (once) | 13.8 s | 3,000,000 |
+| Grid query | 0.010 s | 1,251 candidates, 941 matches |
+
+Each query is about 75 times faster, but building the index costs about 18 scans. The index only pays off when it is reused across many queries and updated incrementally as points move.
+
+## From grid cells to geohashes
+
+A geohash applies the same interleaving to longitude and latitude. It halves the longitude range, then the latitude range, and so on, and each halving produces one bit. Every 5 bits become one base32 character. The alphabet `0123456789bcdefghjkmnpqrstuvwxyz` is in ASCII order, so sorting geohash strings sorts by cell, and every cell is a contiguous prefix range. That is what makes geohashes work with an ordinary B-tree index.
+
 ```python
-count = 0
-for item in candidates:
-  if euclidean_distance(*item, client_x, client_y) <= threshold:
-    count += 1
+BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz"
+
+def encode(lat: float, lon: float, precision: int = 7) -> str:
+    lat_lo, lat_hi, lon_lo, lon_hi = -90.0, 90.0, -180.0, 180.0
+    out, ch, bit, use_lon = [], 0, 0, True  # bits alternate, longitude first
+    while len(out) < precision:
+        if use_lon:
+            mid = (lon_lo + lon_hi) / 2
+            ch = ch << 1 | (lon >= mid)
+            lon_lo, lon_hi = (mid, lon_hi) if lon >= mid else (lon_lo, mid)
+        else:
+            mid = (lat_lo + lat_hi) / 2
+            ch = ch << 1 | (lat >= mid)
+            lat_lo, lat_hi = (mid, lat_hi) if lat >= mid else (lat_lo, mid)
+        use_lon = not use_lon
+        bit += 1
+        if bit == 5:  # every 5 bits become one base32 character
+            out.append(BASE32[ch])
+            ch, bit = 0, 0
+    return "".join(out)
+
+assert encode(57.64911, 10.40744, 11) == "u4pruydqqvj"
 ```
-#### Explanation: 
-Here, the code iterates through the items in the target and neighboring grid cells, using the previously defined Euclidean distance function to determine if they are within the desired threshold. If they are, the count is incremented. 
-## Time Comparison 
-In the original run, the naïve linear search took 2.2979 seconds, while the geohash lookup took 0.0186 seconds:
 
-- Naïve approach: `2.297866106033325 seconds`
-- Geohash lookup: `0.018601417541503906 seconds`
+### Precision table
 
-These are lookup times, not the cost of building the grid index. Build the index first, then reuse it for queries.
-## Conclusion 
-The code snippets above demonstrate the steps involved in geohashing, illustrating how it reduces complexity and improves efficiency for proximity searches. The time comparison shows a substantial improvement over the naive approach, making geohashing a powerful method for handling location-based searches.
+Cell size at the equator. Cell height stays the same at any latitude; cell width shrinks with `cos(latitude)` (about 62% of the equator value in London, 50% at 60 degrees).
+
+| Length | Cell width x height | Typical use |
+| --- | --- | --- |
+| 1 | 5,009 km x 4,976 km | |
+| 2 | 1,252 km x 622 km | |
+| 3 | 157 km x 155 km | Region |
+| 4 | 39.1 km x 19.4 km | Metro area |
+| 5 | 4.9 km x 4.9 km | City district |
+| 6 | 1.2 km x 0.61 km | Neighborhood, "within 500 m" |
+| 7 | 153 m x 152 m | Street block |
+| 8 | 38.2 m x 19.0 m | Building |
+| 9 | 4.8 m x 4.7 m | |
+| 10 | 1.2 m x 0.59 m | |
+| 11 | 149 mm x 148 mm | |
+| 12 | 37 mm x 19 mm | |
+
+Odd lengths give roughly square cells. Even lengths give cells twice as wide as they are tall, because longitude gets the extra bit.
+
+## The boundary problem: always query 9 cells
+
+A shared prefix means two points are in the same cell. A different prefix says nothing about distance. These two points near Greenwich are 208 m apart:
+
+| Point | Geohash (7) |
+| --- | --- |
+| 51.4779, -0.0015 | `gcpuzgq` |
+| 51.4779, 0.0015 | `u10hb53` |
+
+They share no characters, because the prime meridian is the first longitude split. The same thing happens, on a smaller scale, at every cell edge. A user standing near the edge of a cell has neighbors just across it, so prefix matching alone silently misses nearby results.
+
+The fix: choose a precision whose cells are at least as large as the radius, then search the point's cell plus the 8 around it. Any point within the radius must lie in one of those 9 cells.
+
+```python
+import math
+
+def cell_size(precision: int) -> tuple[float, float]:
+    """Height and width of one cell, in degrees."""
+    bits = precision * 5
+    return 180 / 2 ** (bits // 2), 360 / 2 ** ((bits + 1) // 2)
+
+def neighbors(lat: float, lon: float, precision: int) -> set[str]:
+    """The cell containing (lat, lon) plus its 8 neighbors."""
+    dlat, dlon = cell_size(precision)
+    return {
+        encode(max(-90.0, min(90.0, lat + i * dlat)),
+               (lon + j * dlon + 180) % 360 - 180,  # wrap at the antimeridian
+               precision)
+        for i in (-1, 0, 1)
+        for j in (-1, 0, 1)
+    }
+
+def precision_for(radius_m: float, lat: float) -> int:
+    """Longest geohash whose cells are at least radius_m tall and wide here."""
+    for p in range(12, 0, -1):
+        dlat, dlon = cell_size(p)
+        height = dlat * 110_574
+        width = dlon * 111_320 * math.cos(math.radians(lat))
+        if min(height, width) >= radius_m:
+            return p
+    return 1
+
+def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp, dl = p2 - p1, math.radians(lon2 - lon1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * 6_371_000 * math.asin(math.sqrt(a))
+
+def nearby(index: dict, precision: int, lat: float, lon: float, radius_m: float):
+    """index maps a geohash of `precision` characters to a list of (lat, lon)."""
+    assert precision_for(radius_m, lat) >= precision, "radius too large for this index"
+    candidates = (p for cell in neighbors(lat, lon, precision) for p in index.get(cell, []))
+    return [p for p in candidates if haversine_m(lat, lon, *p) <= radius_m]
+```
+
+Checked against a brute-force haversine scan on 200,000 random points around London: identical results at 50 random query locations.
+
+## Where this still breaks
+
+| Issue | What happens | Mitigation |
+| --- | --- | --- |
+| Uneven density | A city-center cell holds thousands of points, a rural cell holds none | Expand the radius in steps, cap results, or use finer precision in dense areas |
+| Square cells, circular search | 9 cells cover far more area than the circle | Always run the exact-distance filter |
+| High latitudes | Cells get narrow, so a fixed precision covers less width | Choose precision per query latitude, as `precision_for` does |
+| Antimeridian and poles | Longitude wraps, latitude clamps | Wrap and clamp in the neighbor calculation |
+| Moving objects | Every location update moves a point between cells | Use a store with cheap updates (a Redis sorted set), and expire stale positions |
+| Nearest-k queries | A fixed radius returns too many or zero results | Grow the ring of cells until you have k results, then sort by distance |
+
+## In production: use what already exists
+
+### PostGIS
+
+Use a `geography` column with a GiST index. `ST_DWithin` uses the index; `<->` orders results by distance.
+
+```sql
+CREATE TABLE places (
+  id   BIGINT PRIMARY KEY,
+  name TEXT,
+  geog GEOGRAPHY(POINT, 4326) NOT NULL
+);
+CREATE INDEX places_geog_idx ON places USING GIST (geog);
+
+SELECT id, name
+FROM places
+WHERE ST_DWithin(geog, ST_MakePoint(-0.0015, 51.4779)::geography, 500)  -- meters
+ORDER BY geog <-> ST_MakePoint(-0.0015, 51.4779)::geography
+LIMIT 20;
+```
+
+`ST_MakePoint` takes longitude first. Swapping the order is the most common PostGIS bug, and it fails silently with valid-looking results.
+
+### Redis
+
+Geo commands store a 52-bit geohash as a sorted-set score. `GEOSEARCH` does the cell-plus-8-neighbors lookup and distance filter described above.
+
+```text
+GEOADD drivers -0.0015 51.4779 driver:1 0.0015 51.4779 driver:2
+GEOSEARCH drivers FROMLONLAT -0.0015 51.4779 BYRADIUS 500 m ASC COUNT 20 WITHDIST
+```
+
+This fits frequently updated positions, such as drivers. Redis takes longitude first too.
+
+### H3 and S2
+
+H3 (Uber) and S2 (Google) are hierarchical cell systems built for the same job. H3's hexagons have six equidistant neighbors, which helps with aggregation and heatmaps. S2 cells avoid the worst distortion near the poles.
+
+## Takeaways
+
+- [ ] Two nearby points can have completely different geohashes. A shared prefix only means a shared cell.
+- [ ] Always search the cell plus its 8 neighbors, then filter by haversine distance.
+- [ ] Derive precision from the radius and the query latitude.
+- [ ] Build the index once and update it incrementally. Index build cost dominates small workloads.
+- [ ] Check argument order: PostGIS and Redis both take longitude first.
+- [ ] Use PostGIS for queries that sit next to relational data, and Redis `GEOSEARCH` for fast-moving points.

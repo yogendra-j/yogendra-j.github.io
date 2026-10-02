@@ -1,207 +1,212 @@
 ---
-title: Setting Up a New TypeScript Node.js Project in 2024
+title: "TypeScript Node.js Project Setup: A Minimal Modern Starter"
 date: 2024-04-28 00:00:00 +0530
 categories: [init, node]
-tags: [typescript, init, setup, pnpm, lint, ts-node, watch, prettier]     # TAG names should always be lowercase
-description: A practical TypeScript Node.js starter setup for 2024 using pnpm, ts-node, ESLint, Prettier, and watch mode.
+tags: [typescript, nodejs, pnpm, eslint, vitest, prettier, project-setup]
+description: >-
+  Node 24 runs .ts files directly, so a TypeScript project needs no ts-node: tsc only type-checks, plus native --watch, ESLint flat config, Vitest, and pnpm.
 redirect_from:
   - /posts/Setting-up-new-Typescipt-Node-proejct-in-2024/
+image:
+  path: /assets/img/og/posts/typescript-node-setup.jpg
+  alt: "TypeScript Node.js Project Setup: A Minimal Modern Starter"
 ---
 
-
-In this post, we will see how to setup a new typescript-node project in 2024. We will use `pnpm` as package manager, `ts-node` for running typescript code directly, `eslint` for linting, `prettier` for formatting and node --watch for auto-reloading the server.
-
-## Step 1: Create a new directory and initialize a git repository
-
-```bash
-mkdir new-project
-cd new-project
-git init
-```
-
-## Step 2: Initialize a new node project
-
-```bash
-pnpm init
-```
-
-## Step 3: Install required dependencies
-
-```bash
-pnpm i -D typescript ts-node @types/node
-```
-
-## Step 4: Create a `tsconfig.json` file
-
-```bash
-pnpm tsc --init
-```
-
-Add the following content to the `tsconfig.json` file:
-
-```jsonc
-{
-  "compilerOptions": {
-     /* Common options for every project: */
-    /* ******************************************************** */
-    /* ******************************************************** */
-
-    /* allows you to use common js packages from es modules */
-    "esModuleInterop": true,
-
-    /* makes ide fast and doesn't show type errors inside the npm packages you use */
-    "skipLibCheck": true,
-
-    /* can be adjusted */
-    "target": "es2022",
-
-     /* allows you to use js files in your project */
-    "allowJs": true,
-
-    /* allows you to import json files */
-    "resolveJsonModule": true,
-
-    /* makes every file a module so no 'cannot redeclare block-scoped variables` error */
-    "moduleDetection": "force",
-
-    /* warns you about code that single-file transpilers like Babel can't handle */
-    /*correctly, preventing runtime issues with features like */
-    /* const enums and namespaces without changing */   
-    /* TypeScript's behavior. */
-    "isolatedModules": true,
-
-    /* TS drops type imports from emitted js. */
-    /* So, if the import is a type/interface it'll be dropped. */
-    /* But if its a class then it'll be kept. TS can make this distinction but some other transpilers can't */
-    /* With this option, any import like: `import {type Card} from ./car;` will be dropped */
-    /* and any import like: `import {Card} from ./car;` will be kept. You get what you see. */
-    "verbatimModuleSyntax": true,
-
-
-    /* strict options */
-
-    /* enables all strict type checking options */
-    "strict": true,
-
-    /* makes it so you have to use override to override methods */
-    "noImplicitOverride": true,
-
-    /* enables strict null/undefined checks for arrays/objects */
-    "noUncheckedIndexedAccess": true,
-
-    /* ******************************************************** */
-    /* ******************************************************** */
-
-
-    /* transpilation options */
-    /* ******************************************************** */
-    /* ******************************************************** */
-
-
-    "lib": ["es2022", "dom", "dom.iterable"], // omit dom* if not running in browser
-    "types": ["node"],
-
-    /* If using tsc */
-    "module": "NodeNext", // `moduleResolution: NodeNext` is implied from this option
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "sourceMap": true,
-
-    /* ******************************************************** */
-    /* ******************************************************** */
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
-}
-```
-
-This config builds JavaScript with `tsc`. If you use a bundler instead, replace `"module": "NodeNext"` with `"module": "preserve"` and add `"noEmit": true`. Don't combine both versions.
-
-## Step 5: Setup eslint configuration
-Install eslint extension in vscode.
-This will prompt you to answer few questions to setup eslint configuration. This will also install required dependencies.
-
-```bash
-pnpm create @eslint/config@latest
-```
-<!-- write a note that tsconfig file will show error until a ts file is added -->
-
-> Note: `tsconfig.json` file will show error until atleast one `.ts` file is added to the project.
-{: .prompt-danger }
-
-> Note: For making eslint.config.mjs work with eslint extension in vscode, you may need to add the following to your vscode settings.json file: `"eslint.experimental.useFlatConfig": true`
+> **Updated October 2026.** The 2024 version of this post used `ts-node` and an ESM loader flag. Current Node runs TypeScript files natively, which removes most of that setup.
 {: .prompt-info }
 
-## Step 6: Setup prettier configuration
-Install prettier extension in vscode.
+**The short version:** on Node 24 LTS, `node src/main.ts` works with no flags. Node strips the type annotations and runs the result. It does not type-check, so `tsc` becomes a checker, not a runner. Watch mode and `.env` loading are built into Node too.
+
+| Concern | Tool |
+| --- | --- |
+| Run TypeScript | `node` (type stripping) |
+| Reload on change | `node --watch` |
+| Environment variables | `node --env-file-if-exists=.env` |
+| Type checking | `tsc --noEmit` |
+| Lint | ESLint flat config + `typescript-eslint` |
+| Format | Prettier |
+| Test | Vitest |
+| Packages | pnpm |
+
+## Node version facts
+
+| Node version | Type stripping |
+| --- | --- |
+| 22.6 | Added behind `--experimental-strip-types` |
+| 23.6, 22.18 | Enabled by default, no flag needed |
+| 24.3, 22.18 | No more experimental warning |
+| 25.2, 24.12 | Marked stable |
+
+Use Node 24 or newer. Node 22.18+ works too. Source: the [Node.js TypeScript docs](https://nodejs.org/api/typescript.html).
+
+Tested with Node 24.14, pnpm 10.33, TypeScript 6.0, ESLint 10.11, typescript-eslint 8.71, Vitest 5.0, and Prettier 3.9.
+
+## 1. Create the project
 
 ```bash
-pnpm i -D prettier eslint-config-prettier
+mkdir my-service && cd my-service
+git init
+pnpm init
+pnpm pkg set type=module
+pnpm add -D typescript@~6.0 @types/node@24 eslint @eslint/js typescript-eslint eslint-config-prettier prettier vitest
 ```
-Now, create a `.prettierrc` file in the root of the project and add the following content:
+
+`type: module` makes `.ts` files run as ES modules. Match `@types/node` to the Node major version you deploy on.
+
+> TypeScript 7 is out, but typescript-eslint 8.71 supports only `typescript >=4.8.4 <6.1.0`. Pin TypeScript 6.0 until typescript-eslint supports 7.
+{: .prompt-warning }
+
+## 2. `tsconfig.json`
+
+Node ignores `tsconfig.json`. This file exists for the type checker and the editor, and it is set up to reject TypeScript that Node cannot run.
 
 ```json
 {
-  "semi": true,
+  "compilerOptions": {
+    "target": "es2024",
+    "module": "nodenext",
+    "types": ["node"],
+    "noEmit": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "rewriteRelativeImportExtensions": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src"]
+}
+```
+
+The options that matter for type stripping:
+
+- **`erasableSyntaxOnly`** errors on syntax that has runtime behavior: `enum`, namespaces with code, constructor parameter properties, and `import x = require()`. Node rejects all of these at runtime. Use `as const` objects instead of enums.
+- **`verbatimModuleSyntax`** requires `import type` for type-only imports. Without it, `import { User } from './user.ts'` type-checks but fails in Node with "does not provide an export named 'User'".
+- **`rewriteRelativeImportExtensions`** lets you write `./greet.ts` in imports, which Node requires, and rewrites them to `.js` if you ever compile.
+- **`noUncheckedIndexedAccess`** types `arr[i]` as `T | undefined`. It is not part of `strict`, and it catches real bugs.
+
+## 3. Write code with `.ts` imports
+
+```ts
+// src/greet.ts
+export type Greeting = { name: string };
+
+export function greet({ name }: Greeting): string {
+  return `Hello, ${name}`;
+}
+```
+
+```ts
+// src/main.ts
+import { greet, type Greeting } from './greet.ts';
+
+const user: Greeting = { name: process.env.USER_NAME ?? 'world' };
+console.log(greet(user));
+```
+
+```bash
+node src/main.ts
+```
+
+## 4. ESLint flat config
+
+```js
+// eslint.config.js
+import eslint from '@eslint/js';
+import { defineConfig } from 'eslint/config';
+import prettier from 'eslint-config-prettier/flat';
+import tseslint from 'typescript-eslint';
+
+export default defineConfig(
+  { ignores: ['dist/'] },
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
+  prettier,
+);
+```
+
+`prettier` goes last so it turns off the formatting rules that conflict with Prettier. For rules that need type information (floating promises, unsafe `any`), switch to `tseslint.configs.recommendedTypeChecked` and enable `parserOptions.projectService`. It is slower but catches more.
+
+## 5. Prettier
+
+```json
+{
   "singleQuote": true,
-  "tabWidth": 2,
   "trailingComma": "all"
 }
 ```
 
-> Add `eslint-config-prettier` in the end of `eslint.config.mjs` file.
-{: .prompt-tip }
+Save that as `.prettierrc`, and list generated files in `.prettierignore`:
 
-Then add `.prettierignore` file in the root of the project and add the following content:
-
-```
-node_modules
+```text
 dist
+pnpm-lock.yaml
 ```
 
-## Step 7: Setup `jest`/`vitest` for testing
+## 6. Tests
 
-> You can also use `vitest` for testing. It is a faster alternative to jest which requires no configuration. just run `pnpm i -D vitest` and add `vitest` to the test script in `package.json`. Also add `vitest/globals` in the types field of `tsconfig.json`.
-{: .prompt-tip }
-
-```bash
-pnpm i -D jest ts-jest @types/jest
-```
-
-Add the following content to the `jest.config.ts` file:
+Vitest runs TypeScript without configuration:
 
 ```ts
-import type { Config } from 'jest';
+// src/greet.test.ts
+import { describe, expect, it } from 'vitest';
+import { greet } from './greet.ts';
 
-const config: Config = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
-  moduleFileExtensions: ['ts', 'js'],
-  transform: {
-    '^.+\\.ts$': 'ts-jest',
-  },
-};
-
-export default config;
+describe('greet', () => {
+  it('greets by name', () => {
+    expect(greet({ name: 'Ada' })).toBe('Hello, Ada');
+  });
+});
 ```
 
-
-## Step 8: Add scripts to `package.json`
-
-Create `src/main.ts` and an `.env` file before running the dev script. Add `"type": "module"` to `package.json` so Node treats the project as ESM.
+## 7. Scripts
 
 ```json
 {
-  "type": "module",
   "scripts": {
-    "dev": "node --env-file=.env --watch --loader ts-node/esm src/main.ts",
-    "build": "tsc",
-    "test": "jest",
+    "dev": "node --watch --env-file-if-exists=.env src/main.ts",
+    "start": "node src/main.ts",
+    "typecheck": "tsc",
     "lint": "eslint .",
-    "format:fix": "prettier --write . --ignore-unknown",
-    "format:check": "prettier --check . --ignore-unknown",
-    "pre-build-ci": "pnpm lint && pnpm format:check && pnpm test"
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "check": "pnpm typecheck && pnpm lint && prettier --check . && pnpm test"
   }
 }
 ```
+
+`tsc` emits nothing here because of `noEmit`. Run `pnpm check` in CI.
+
+## Optional: compile to JavaScript
+
+A service can run its `.ts` files directly in production. A **library** cannot: Node refuses to strip types from files under `node_modules`, so packages must ship JavaScript. Add a `tsconfig.build.json`:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist",
+    "sourceMap": true
+  },
+  "exclude": ["src/**/*.test.ts"]
+}
+```
+
+Then `tsc -p tsconfig.build.json` writes `dist/`, with `./greet.ts` imports rewritten to `./greet.js`.
+
+## When to use tsx instead
+
+Native type stripping has limits. Use [tsx](https://tsx.is/) (`pnpm add -D tsx`, then `tsx watch src/main.ts`) when you need:
+
+- enums, decorators, or parameter properties, for example in an existing NestJS-style codebase
+- `paths` aliases from `tsconfig.json`, which Node does not read
+- extensionless imports
+- a Node version older than 22.18
+
+tsx is also the simpler replacement for `ts-node` in older projects. Like Node, it does not type-check, so keep `tsc` in `check`.

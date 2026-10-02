@@ -1,0 +1,31 @@
+# Selected work, shown on the home page and the Projects page.
+selected:
+  - title: Enterprise AI workflow platform
+    url: /projects/ai-workflow-platform/
+    meta: Client work via Incubyte, since 2024
+    summary: Workflow engine, queues and schedules, human approvals inside running flows, and LLM provider migrations for a platform enterprises use to automate work with AI agents.
+    facts: [NestJS, PostgreSQL, Redis queues, LLM APIs]
+
+  - title: Agent orchestrator for OpenCode
+    url: /projects/agent-orchestrator/
+    meta: Side project, 2026
+    summary: An OpenCode plugin where a lead agent plans and delegates to persistent Claude Code engineers, with write limits enforced in code instead of prompts.
+    facts: [96 releases in 5 weeks, 373 tests, TypeScript]
+
+  - title: Coding agents on real pull requests
+    url: /projects/agent-benchmark/
+    meta: Evaluation, 2026
+    summary: Coding agents rebuild features that already shipped, then get scored against the real pull request, its tests, and the cost and time they took.
+    facts: [Real PRs, Spec-first loop, Cost per task]
+
+open_source:
+  - name: claude-code-opencode
+    url: https://github.com/yogendra-j/claude-code-opencode
+    summary: CLI bridge to OpenCode. Streams session events over SSE and returns JSON for other tools.
+  - name: pdf-generator
+    url: https://github.com/yogendra-j/pdf-generator
+    live_url: https://pdf-generator-lemon.vercel.app
+    summary: Full-stack TypeScript PDF generation app.
+  - name: small-experiments
+    url: https://github.com/yogendra-j/small-experiments
+    summary: Go experiments, including the code behind the geohashing post.
