@@ -153,7 +153,7 @@ body:has(.content .work-list) #main-content > article { max-width: none; }
 #main-content .table-wrapper code { white-space: normal; overflow-wrap: anywhere; }
 .content a:not(.img-link) { color: var(--accent); border-bottom: 1px solid var(--link-underline-color); }
 .content a:not(.img-link):hover { color: var(--heading-color); border-bottom-color: var(--heading-color); }
-.content code, .content pre, .content kbd { font-family: var(--mono); }
+.content code, .content pre, .content kbd { font-family: var(--mono); font-variant-ligatures: none; }
 .content img { border-radius: 4px; }
 #main-content .code-header::before { display: none; }
 #main-content .code-header span { margin-left: 1rem; }
