@@ -2,7 +2,7 @@
 <script defer src="{{ '/assets/js/console.js' | relative_url }}"></script>
 
 <meta name="author" content="{{ site.social.name | escape }}">
-{% if page.url == '/tags/' or page.url == '/categories/' or page.url contains '/tags/' or page.url contains '/categories/' %}
+{% if page.url == '/archives/' or page.url contains '/tags/' or page.url contains '/categories/' %}
   <meta name="robots" content="noindex,follow">
 {% endif %}
 

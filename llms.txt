@@ -1,0 +1,21 @@
+---
+layout: null
+permalink: /llms.txt
+sitemap: false
+---
+{%- assign about = site.tabs | where: 'url', '/about/' | first -%}
+# {{ site.title }}
+
+> {{ site.author_profile.summary | strip }}
+
+- [About]({{ '/about/' | absolute_url }}): {{ about.description }}
+- [RSS feed]({{ '/feed.xml' | absolute_url }})
+
+## Projects
+
+{% for item in site.data.work.selected %}- [{{ item.title }}]({{ item.url | absolute_url }}): {{ item.summary }}
+{% endfor %}
+## Writing
+
+{% assign posts = site.posts | where_exp: 'post', 'post.hidden != true' %}{% for post in posts %}- [{{ post.title }}]({{ post.url | absolute_url }}): {{ post.description }}
+{% endfor %}

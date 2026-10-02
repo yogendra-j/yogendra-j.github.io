@@ -225,11 +225,11 @@ Insert into `processed_events` in the same transaction as the effect. A redelive
 
 ## Takeaways
 
-- [ ] Scope keys by `(client_id, key)`. Never use a global key.
-- [ ] Let a unique constraint decide which request runs. Check-then-insert races.
-- [ ] Return `409` while the first request is running, `422` on fingerprint mismatch, and replay otherwise.
-- [ ] Store the status code and body for replay.
-- [ ] Commit the side effect and the stored response together. Forward the key to anything outside the transaction.
-- [ ] Do not store transient failures. Release the key.
-- [ ] Use a lease longer than the request timeout, and a retention window longer than the retry window.
-- [ ] Clients generate the key once per operation and reuse it on every retry.
+- Scope keys by `(client_id, key)`. Never use a global key.
+- Let a unique constraint decide which request runs. Check-then-insert races.
+- Return `409` while the first request is running, `422` on fingerprint mismatch, and replay otherwise.
+- Store the status code and body for replay.
+- Commit the side effect and the stored response together. Forward the key to anything outside the transaction.
+- Do not store transient failures. Release the key.
+- Use a lease longer than the request timeout, and a retention window longer than the retry window.
+- Clients generate the key once per operation and reuse it on every retry.

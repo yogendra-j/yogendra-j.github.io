@@ -186,11 +186,11 @@ In `psql`, use `BEGIN TRANSACTION ISOLATION LEVEL ...`. In `mysql`, run `SET TRA
 
 ## Takeaways
 
-- [ ] Know your effective level per connection. Do not assume the database default.
-- [ ] Read-modify-write in application code is a lost update at both defaults. Use atomic `UPDATE`, `FOR UPDATE`, or a version column.
-- [ ] In InnoDB Repeatable Read, snapshot reads and writes see different data. Do not decide on one and act with the other.
-- [ ] Invariants across rows (quotas, on-call rules, double booking) need Serializable, explicit locks, or a constraint. Repeatable Read is not enough in either engine.
-- [ ] Anything above Read Committed needs a whole-transaction retry loop that also handles MySQL `1205` correctly.
+- Know your effective level per connection. Do not assume the database default.
+- Read-modify-write in application code is a lost update at both defaults. Use atomic `UPDATE`, `FOR UPDATE`, or a version column.
+- In InnoDB Repeatable Read, snapshot reads and writes see different data. Do not decide on one and act with the other.
+- Invariants across rows (quotas, on-call rules, double booking) need Serializable, explicit locks, or a constraint. Repeatable Read is not enough in either engine.
+- Anything above Read Committed needs a whole-transaction retry loop that also handles MySQL `1205` correctly.
 
 ## References
 

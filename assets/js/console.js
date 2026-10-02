@@ -75,3 +75,24 @@ document.addEventListener('keydown', event => {
     openPalette();
   }
 });
+for (const folder of document.querySelectorAll('.tree-folder')) {
+  folder.addEventListener('click', () => {
+    const expanded = folder.getAttribute('aria-expanded') !== 'true';
+    folder.setAttribute('aria-expanded', expanded);
+    document.getElementById(folder.getAttribute('aria-controls')).hidden = !expanded;
+  });
+}
+const treeToggle = document.querySelector('.tree-toggle');
+treeToggle.addEventListener('click', () => treeToggle.setAttribute('aria-expanded', treeToggle.getAttribute('aria-expanded') !== 'true'));
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || treeToggle.getAttribute('aria-expanded') !== 'true') return;
+  treeToggle.setAttribute('aria-expanded', 'false');
+  treeToggle.focus();
+});
+const treeFiles = document.getElementById('tree-files');
+const currentFile = treeFiles.querySelector('[aria-current]');
+if (currentFile) treeFiles.scrollTop += Math.max(0, currentFile.getBoundingClientRect().bottom - treeFiles.getBoundingClientRect().bottom);
+// Chirpy's tocbot assumes no sticky header; match the 74px heading scroll-margin-top in custom.css.
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.tocbot?.options) tocbot.refresh({ ...tocbot.options, headingsOffset: 74 });
+});

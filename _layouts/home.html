@@ -28,11 +28,11 @@ layout: default
   <section class="home-section" aria-labelledby="writing-title">
     <div class="section-heading"><h2 id="writing-title"><i class="far fa-file-lines" aria-hidden="true"></i> Latest Writing</h2><a href="{{ '/writing/' | relative_url }}">View all writing <span aria-hidden="true">→</span></a></div>
     <ol class="writing-cards">
-      {% for post in posts limit: 5 %}
+      {% for post in posts limit: 6 %}
         <li><a class="writing-card" href="{{ post.url | relative_url }}">
           <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %d, %Y' }}</time>
           <span class="writing-title">{{ post.title }}</span>
-          <span class="writing-summary">{{ post.description | strip_html | truncate: 110 | escape }}</span>
+          <span class="writing-summary">{{ post.description | strip_html | escape }}</span>
           <span class="writing-tags">{% for tag in post.tags limit: 2 %}<span>{{ tag }}</span>{% endfor %}</span>
         </a></li>
       {% endfor %}

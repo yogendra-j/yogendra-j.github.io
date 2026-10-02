@@ -1,7 +1,7 @@
 <ol class="work-list">
   {% for item in site.data.work.selected %}
     <li><a class="work-card" href="{{ item.url | relative_url }}">
-      <span class="work-icon" aria-hidden="true"><i class="fas {% cycle 'fa-diagram-project', 'fa-terminal', 'fa-code-compare' %}"></i><span>0{{ forloop.index }} ↗</span></span>
+      <span class="work-icon" aria-hidden="true"><i class="fas {% cycle 'fa-diagram-project', 'fa-terminal', 'fa-code-compare' %}"></i><span>0{{ forloop.index }} →</span></span>
       <span class="work-title">{{ item.title }}</span>
       {% if include.metadata %}<span class="work-meta">{{ item.meta }}</span>{% endif %}
       <span class="work-summary">{{ item.summary }}</span>

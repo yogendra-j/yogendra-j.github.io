@@ -1,6 +1,8 @@
 ---
 title: Projects
 description: Case studies by Yogendra Jaiswal on an enterprise AI workflow platform, an OpenCode agent orchestrator, and benchmarking coding agents on real pull requests.
+seo:
+  type: CollectionPage
 icon: fas fa-diagram-project
 order: 1
 ---

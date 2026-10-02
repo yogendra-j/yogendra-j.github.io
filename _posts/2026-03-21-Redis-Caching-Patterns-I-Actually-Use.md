@@ -177,11 +177,11 @@ Tag by the entity that is accessed together (`{42}` for one user). A broad tag s
 
 ## Takeaways
 
-- [ ] Cache-aside with a TTL. Treat Redis errors as misses.
-- [ ] On writes, delete the key after commit. Never delete before the write, and never `SET` the new value from the write path.
-- [ ] The TTL is the bound on every race you did not fix. Choose it on purpose.
-- [ ] Hot keys get a lock, stale-while-revalidate, and jitter.
-- [ ] Release locks with a token check. Lock TTL greater than load time.
-- [ ] Negative-cache misses with a short TTL and delete on create.
-- [ ] Use hash tags for multi-key operations in Cluster, scoped to one entity.
-- [ ] Set `maxmemory` and an eviction policy. Keep queues on a separate `noeviction` instance.
+- Cache-aside with a TTL. Treat Redis errors as misses.
+- On writes, delete the key after commit. Never delete before the write, and never `SET` the new value from the write path.
+- The TTL is the bound on every race you did not fix. Choose it on purpose.
+- Hot keys get a lock, stale-while-revalidate, and jitter.
+- Release locks with a token check. Lock TTL greater than load time.
+- Negative-cache misses with a short TTL and delete on create.
+- Use hash tags for multi-key operations in Cluster, scoped to one entity.
+- Set `maxmemory` and an eviction policy. Keep queues on a separate `noeviction` instance.

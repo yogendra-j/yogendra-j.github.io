@@ -1,0 +1,15 @@
+---
+layout: page
+title: "404: Page not found"
+permalink: /404.html
+
+redirect_from:
+  - /norobots/
+  - /assets/
+  - /posts/
+---
+
+{% include lang.html %}
+
+<p class="lead">{{ site.data.locales[lang].not_found.statment }}</p>
+<p>Try <a href="{{ '/' | relative_url }}">home</a>, <a href="{{ '/writing/' | relative_url }}">writing</a>, or <a href="{{ '/projects/' | relative_url }}">projects</a>, or press Ctrl K to search.</p>

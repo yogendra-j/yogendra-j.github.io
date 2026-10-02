@@ -1,0 +1,8 @@
+{% assign open = false %}
+{% for item in include.items %}{% if item.url == page.url %}{% assign open = true %}{% endif %}{% endfor %}
+<button type="button" class="tree-folder" aria-expanded="{{ open }}" aria-controls="tree-{{ include.name }}"><i class="fas fa-chevron-down" aria-hidden="true"></i><i class="far fa-folder" aria-hidden="true"></i><span>{{ include.name }}/</span></button>
+<div id="tree-{{ include.name }}" class="tree-group"{% unless open %} hidden{% endunless %}>
+  {% for item in include.items %}
+    <a href="{{ item.url | relative_url }}" {% if item.url == page.url %}aria-current="page"{% endif %}><i class="far fa-file-lines" aria-hidden="true"></i><span>{{ item.title }}</span></a>
+  {% endfor %}
+</div>

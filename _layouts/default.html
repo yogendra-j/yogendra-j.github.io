@@ -12,15 +12,13 @@ layout: compress
   <body{% if page.layout == 'home' %} class="portfolio-home"{% endif %}>
     <a class="skip-link" href="#main-content">Skip to content</a>
     {% include topbar.html lang=lang %}
-    <aside class="workspace-tree" aria-label="Portfolio explorer">
+    <aside id="workspace-tree" class="workspace-tree" aria-label="Portfolio explorer">
       <p class="tree-heading">EXPLORER</p>
-      <p class="tree-root"><span aria-hidden="true">⌄</span><i class="far fa-folder-open" aria-hidden="true"></i> portfolio/</p>
-      <nav class="tree-files" aria-label="Primary navigation">{% include workspace-nav.html %}</nav>
-      <div class="tree-directories" aria-hidden="true"><span>› &nbsp; assets/</span><span>› &nbsp; data/</span><span>› &nbsp; components/</span><span>› &nbsp; .config/</span></div>
+      <button type="button" class="tree-folder tree-root" aria-expanded="true" aria-controls="tree-files"><i class="fas fa-chevron-down" aria-hidden="true"></i><i class="far fa-folder-open" aria-hidden="true"></i><span>portfolio/</span></button>
+      <nav id="tree-files" class="tree-files" aria-label="Primary navigation">{% include workspace-nav.html %}</nav>
       <div class="tree-footer"><span>© {{ 'now' | date: '%Y' }} {{ site.social.name }}</span><a href="{{ '/feed.xml' | relative_url }}">RSS feed ↗</a></div>
     </aside>
     <div class="workspace-buffer">
-      <nav class="buffer-tabs" aria-label="Buffers">{% include workspace-nav.html tabs=true %}</nav>
     <div id="main-wrapper" class="d-flex justify-content-center">
       <div class="container d-flex flex-column">
         <div class="row flex-grow-1">

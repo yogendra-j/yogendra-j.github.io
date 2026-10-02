@@ -1,6 +1,8 @@
 ---
 title: Writing
 description: Articles by Yogendra Jaiswal on backend reliability, SQL isolation, idempotent APIs, Redis, TypeScript, and building and verifying AI coding agents.
+seo:
+  type: CollectionPage
 icon: fas fa-pen-to-square
 order: 2
 ---

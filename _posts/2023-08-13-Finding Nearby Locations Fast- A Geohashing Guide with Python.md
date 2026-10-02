@@ -238,9 +238,9 @@ H3 (Uber) and S2 (Google) are hierarchical cell systems built for the same job. 
 
 ## Takeaways
 
-- [ ] Two nearby points can have completely different geohashes. A shared prefix only means a shared cell.
-- [ ] Always search the cell plus its 8 neighbors, then filter by haversine distance.
-- [ ] Derive precision from the radius and the query latitude.
-- [ ] Build the index once and update it incrementally. Index build cost dominates small workloads.
-- [ ] Check argument order: PostGIS and Redis both take longitude first.
-- [ ] Use PostGIS for queries that sit next to relational data, and Redis `GEOSEARCH` for fast-moving points.
+- Two nearby points can have completely different geohashes. A shared prefix only means a shared cell.
+- Always search the cell plus its 8 neighbors, then filter by haversine distance.
+- Derive precision from the radius and the query latitude.
+- Build the index once and update it incrementally. Index build cost dominates small workloads.
+- Check argument order: PostGIS and Redis both take longitude first.
+- Use PostGIS for queries that sit next to relational data, and Redis `GEOSEARCH` for fast-moving points.
